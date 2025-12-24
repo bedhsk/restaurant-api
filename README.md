@@ -4,14 +4,19 @@
 
 ## Restaurant API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Restaurant management API.
 
 ## Project setup
+
+1. Clone project
+
+2. Install dependencies
 
 ```bash
 $ pnpm install
 ```
 
+3. Create database
 ```bash
 docker compose up -d
 ```
