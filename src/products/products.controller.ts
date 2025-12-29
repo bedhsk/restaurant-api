@@ -2,12 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ApiCreatedResponse, ApiForbiddenResponse, ApiResponse } from '@nestjs/swagger';
+import { Product } from './entities/product.entity';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
+  @ApiCreatedResponse({ description: 'The product has been successfully created.', type: Product })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
