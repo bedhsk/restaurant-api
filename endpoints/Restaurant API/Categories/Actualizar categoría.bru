@@ -1,0 +1,20 @@
+meta {
+  name: Actualizar categoría
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/api/categories/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

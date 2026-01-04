@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar categoría
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/api/categories/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
