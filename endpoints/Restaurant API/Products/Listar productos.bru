@@ -1,0 +1,20 @@
+meta {
+  name: Listar productos
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/products
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~search: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

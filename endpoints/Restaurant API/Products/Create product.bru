@@ -1,0 +1,53 @@
+meta {
+  name: Create product
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/products
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{name}}",
+    "description": "{{description}}",
+    "price": {{price}},
+    "categoryId": "{{categoryId}}"
+  }
+}
+
+body:form-urlencoded {
+  name: AAAAAA
+  description: AAAAA
+  price: 150
+  categoryId: f5e02ae1-d1d5-44c5-9d4f-ce1a31e03307
+  ~imageUrl: 
+}
+
+body:multipart-form {
+  name: Pastel de Chocolate
+  description: Delicioso pastel de chocolate
+  price: 150
+  categoryId: f5e02ae1-d1d5-44c5-9d4f-ce1a31e03307
+  ~imageUrl: 
+}
+
+body:file {
+  ~file: @file()
+}
+
+vars:pre-request {
+  name: 
+  description: 
+  price: 
+  categoryId: 
+  ~imageUrl: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

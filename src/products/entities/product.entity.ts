@@ -1,7 +1,8 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ApiProperty } from "@nestjs/swagger";
+
 import { Category } from "../../categories/entities/category.entity";
 import { OrderItem } from "../../order-items/entities/order-item.entity";
-import { ApiProperty } from "@nestjs/swagger";
 
 @Entity('products')
 export class Product {
@@ -15,7 +16,7 @@ export class Product {
     id: string;
 
     @ApiProperty({
-        description: 'Name of the product/dish',
+        description: 'Name of the product',
         example: 'Tacos al Pastor',
         maxLength: 255,
         required: true
@@ -24,21 +25,12 @@ export class Product {
     name: string;
 
     @ApiProperty({
-        description: 'Description of the product/dish',
+        description: 'Description of the product',
         example: 'Delicious tacos made with marinated pork, pineapple, and fresh cilantro.',
         required: false, nullable: true
     })
     @Column('text', { nullable: true })
     description: string;
-
-    @ApiProperty({
-        description: 'Price of the product/dish',
-        example: 9.99,
-        minimum: 0,
-        required: true,
-    })
-    @Column('decimal', { precision: 10, scale: 2 })
-    price: number;
 
     @ApiProperty({
         description: 'URL of the product image',
@@ -47,6 +39,16 @@ export class Product {
     })
     @Column('varchar', { length: 500, nullable: true, name: 'image_url' })
     imageUrl: string;
+
+
+    @ApiProperty({
+        description: 'Price of the product',
+        example: 9.99,
+        minimum: 0,
+        required: true,
+    })
+    @Column('decimal', { precision: 10, scale: 2 })
+    price: number;
 
     @ApiProperty({
         description: 'Availability status of the product',
@@ -59,7 +61,7 @@ export class Product {
 
     @ApiProperty({
         description: 'Category to which the product belongs',
-        example: { id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6' },
+        example: { id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6', name: 'Main Course' },
         required: true,
         type: () => Category
     })

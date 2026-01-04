@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, Min } fr
 
 export class CreateProductDto {
     @ApiProperty({
-        description: 'Name of the product/dish',
+        description: 'Name of the product',
         example: 'Tacos al Pastor',
         maxLength: 255,
         required: true
@@ -14,24 +14,13 @@ export class CreateProductDto {
     name: string;
 
     @ApiProperty({
-        description: 'Description of the product/dish',
+        description: 'Description of the product',
         example: 'Delicious tacos made with marinated pork, pineapple, and fresh cilantro.',
         required: false, nullable: true
     })
     @IsString()
     @IsOptional()
     description?: string;
-
-    @ApiProperty({
-        description: 'Price of the product/dish',
-        example: 9.99,
-        minimum: 0,
-        required: true,
-    })
-    @IsNumber({ maxDecimalPlaces: 2 })
-    @Min(0)
-    @IsNotEmpty()
-    price: number;
 
     @ApiProperty({
         description: 'URL of the product image',
@@ -42,6 +31,17 @@ export class CreateProductDto {
     @MaxLength(500)
     @IsOptional()
     imageUrl?: string;
+
+    @ApiProperty({
+        description: 'Price of the product',
+        example: 9.99,
+        minimum: 0,
+        required: true,
+    })
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @Min(0)
+    @IsNotEmpty()
+    price: number;
 
     @ApiProperty({
         description: 'Availability status of the product',
@@ -55,7 +55,7 @@ export class CreateProductDto {
     @ApiProperty({
         description: 'Unique identifier for the category',
         example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
-        required: false,
+        required: true,
         uniqueItems: true
     })
     @IsUUID()

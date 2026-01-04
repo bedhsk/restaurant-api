@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar producto
+  type: http
+  seq: 3
+}
+
+delete {
+  url: http://localhost:3000/api/products/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
