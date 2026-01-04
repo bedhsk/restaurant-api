@@ -1,0 +1,16 @@
+meta {
+  name: Listar mesas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/api/tables
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

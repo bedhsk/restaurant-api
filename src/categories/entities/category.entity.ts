@@ -18,9 +18,11 @@ export class Category {
     @Column('boolean', { default: true, name: 'is_active' })
     isActive: boolean;
 
+    // Relations
     @OneToMany(() => Product, (product) => product.category)
     products: Product[];
 
+    // Metadata
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 

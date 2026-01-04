@@ -1,0 +1,28 @@
+meta {
+  name: Crear mesa
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/api/tables
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "tableNumber": "{{tableNumber}}",
+    "capacity": {{capacity}}
+  }
+}
+
+vars:pre-request {
+  tableNumber: C1
+  capacity: 4
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

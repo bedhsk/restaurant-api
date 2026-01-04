@@ -1,0 +1,43 @@
+meta {
+  name: Actualizar mesa
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/api/tables/{{id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+  //   "tableNumber": "{{tableNumber}}",
+  //   "capacity": "{{capacity}}",
+    "status": "{{status}}",
+    "isActive": {{isActive}}
+  }
+}
+
+vars:pre-request {
+  id: cd0b0922-b048-45c2-9d6f-c05933dbd62e
+  status: available
+  isActive: true
+  ~tableNumber: 3
+  ~capacity: 2
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  
+  Table Status:
+  - available
+  - occupied
+  - reserved
+  - maintenance
+  
+}
