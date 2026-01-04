@@ -40,7 +40,6 @@ export class Product {
     @Column('varchar', { length: 500, nullable: true, name: 'image_url' })
     imageUrl: string;
 
-
     @ApiProperty({
         description: 'Price of the product',
         example: 9.99,
@@ -59,6 +58,7 @@ export class Product {
     @Column('boolean', { default: true, name: 'is_available' })
     isAvailable: boolean;
 
+    // Relations
     @ApiProperty({
         description: 'Category to which the product belongs',
         example: { id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6', name: 'Main Course' },
@@ -69,9 +69,13 @@ export class Product {
     @JoinColumn({ name: 'category_id' })
     category: Category;
 
+    @Column({ name: 'category_id', type: 'uuid' })
+    categoryId: string;
+
     @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
     orderItems: OrderItem[];
 
+    // Metadata
     @ApiProperty({
         description: 'Timestamp when the product was created',
         example: '2024-01-01T12:00:00Z'

@@ -21,18 +21,14 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto) {
     try {
-      const createProduct = {
-        ...createProductDto,
-        category: { id: createProductDto.categoryId }
-      };
-      const product = this.productRepository.create(createProduct);
+      const product = this.productRepository.create(createProductDto);
       return await this.productRepository.save(product);
     } catch (error) {
       this.handleExceptions(error);
     }
   }
 
-  findAll(query: PaginateQuery) {
+  async findAll(query: PaginateQuery) {
     return paginate(query, this.productRepository, PRODUCT_PAGINATION_CONFIG);
   }
 
