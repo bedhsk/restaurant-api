@@ -1,1 +1,0 @@
-export { TableStatus } from './table-status.enum';

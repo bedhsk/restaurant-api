@@ -1,0 +1,55 @@
+meta {
+  name: Crear orden
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/api/orders
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "tableId": "",
+    "userId": "",
+    "orderNumber": "",
+  //   "status": "",
+    "subtotal": "",
+    "tax": "",
+    "total": "",
+    "notes": "",
+    "items": [
+      {
+        "productId": "",
+        "quantity": 1,
+        "unitPrice": "",
+        "subtotal": "",
+        "notes": "",
+        "status": ""
+      },
+      {
+        "productId": "",
+        "quantity": 1,
+        "unitPrice": "",
+        "subtotal": "",
+        "notes": "",
+        "status": ""
+      },
+      {
+        "productId": "",
+        "quantity": 1,
+        "unitPrice": "",
+        "subtotal": "",
+        "notes": "",
+        "status": ""
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
