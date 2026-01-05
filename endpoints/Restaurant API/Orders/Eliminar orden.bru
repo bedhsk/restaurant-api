@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar orden
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/api/orders/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

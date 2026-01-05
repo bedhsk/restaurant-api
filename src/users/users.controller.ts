@@ -19,7 +19,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Paginate, PaginatedSwaggerDocs, type PaginateQuery } from 'nestjs-paginate';
+import {
+  Paginate,
+  PaginatedSwaggerDocs,
+  type PaginateQuery,
+} from 'nestjs-paginate';
 
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -30,7 +34,7 @@ import { USER_PAGINATION_CONFIG } from './config/user-pagination.config';
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
@@ -86,7 +90,8 @@ export class UsersController {
     type: User,
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data, invalid UUID format, or email already exists.',
+    description:
+      'Invalid input data, invalid UUID format, or email already exists.',
   })
   @ApiNotFoundResponse({
     description: 'User not found.',

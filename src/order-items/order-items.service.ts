@@ -25,7 +25,7 @@ export class OrderItemsService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @Inject(forwardRef(() => OrdersService))
     private readonly ordersService: OrdersService,
-  ) { }
+  ) {}
 
   async findOne(id: string) {
     const orderItem = await this.orderItemRepository.findOne({
@@ -71,7 +71,9 @@ export class OrderItemsService {
     // If quantity is being updated, recalculate subtotal
     if (updateOrderItemDto.quantity) {
       orderItem.quantity = updateOrderItemDto.quantity;
-      orderItem.subtotal = Number((orderItem.unitPrice * updateOrderItemDto.quantity).toFixed(2));
+      orderItem.subtotal = Number(
+        (orderItem.unitPrice * updateOrderItemDto.quantity).toFixed(2),
+      );
     }
 
     if (updateOrderItemDto.notes !== undefined) {
@@ -112,8 +114,13 @@ export class OrderItemsService {
     }
 
     // Don't allow removing items that are already being prepared or served
-    if (orderItem.status === OrderItemStatus.PREPARING || orderItem.status === OrderItemStatus.SERVED) {
-      throw new BadRequestException('Cannot remove items that are being prepared or already served');
+    if (
+      orderItem.status === OrderItemStatus.PREPARING ||
+      orderItem.status === OrderItemStatus.SERVED
+    ) {
+      throw new BadRequestException(
+        'Cannot remove items that are being prepared or already served',
+      );
     }
 
     const orderId = orderItem.orderId;
@@ -130,7 +137,9 @@ export class OrderItemsService {
     if (error instanceof DatabaseError) {
       if (error.code === '23505') {
         this.logger.error(`Violation UNIQUE: ${error.detail}`);
-        throw new BadRequestException('An order item with this information already exists');
+        throw new BadRequestException(
+          'An order item with this information already exists',
+        );
       }
 
       if (error.code === '23503') {
@@ -140,6 +149,8 @@ export class OrderItemsService {
     }
 
     this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
+    throw new InternalServerErrorException(
+      'Unexpected error, check server logs',
+    );
   }
 }

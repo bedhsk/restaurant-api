@@ -26,7 +26,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) { }
+  ) {}
 
   async create(createProductDto: CreateProductDto) {
     await this.validateCategoryExists(createProductDto.categoryId);

@@ -13,14 +13,14 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-    })
+    }),
   );
 
   updateGlobalConfig({
     defaultLimit: 20,
     defaultMaxLimit: 100,
-    defaultOrigin: undefined
-  })
+    defaultOrigin: undefined,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Restaurant API')

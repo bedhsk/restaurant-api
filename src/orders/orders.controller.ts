@@ -19,7 +19,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Paginate, PaginatedSwaggerDocs, type PaginateQuery } from 'nestjs-paginate';
+import {
+  Paginate,
+  PaginatedSwaggerDocs,
+  type PaginateQuery,
+} from 'nestjs-paginate';
 
 import { Order } from './entities/order.entity';
 import { OrdersService } from './orders.service';
@@ -32,7 +36,7 @@ import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new order with items' })
@@ -41,7 +45,8 @@ export class OrdersController {
     type: Order,
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data, table/user/products not found, or products unavailable.',
+    description:
+      'Invalid input data, table/user/products not found, or products unavailable.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -132,7 +137,8 @@ export class OrdersController {
     type: Order,
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data, order is closed, or products not found/unavailable.',
+    description:
+      'Invalid input data, order is closed, or products not found/unavailable.',
   })
   @ApiNotFoundResponse({
     description: 'Order not found.',

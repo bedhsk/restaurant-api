@@ -24,10 +24,12 @@ import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 @ApiTags('Order Items')
 @Controller('order-items')
 export class OrderItemsController {
-  constructor(private readonly orderItemsService: OrderItemsService) { }
+  constructor(private readonly orderItemsService: OrderItemsService) {}
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update an order item (quantity, notes, or status)' })
+  @ApiOperation({
+    summary: 'Update an order item (quantity, notes, or status)',
+  })
   @ApiOkResponse({
     description: 'The order item has been successfully updated.',
     type: OrderItem,
@@ -55,7 +57,8 @@ export class OrderItemsController {
     description: 'The order item has been successfully removed.',
   })
   @ApiBadRequestResponse({
-    description: 'Invalid UUID format, order is closed, or item is being prepared/served.',
+    description:
+      'Invalid UUID format, order is closed, or item is being prepared/served.',
   })
   @ApiNotFoundResponse({
     description: 'Order item not found.',

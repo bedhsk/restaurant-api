@@ -21,4 +21,4 @@ import { OrderItemsModule } from '../order-items/order-items.module';
   providers: [OrdersService],
   exports: [OrdersService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

@@ -1,0 +1,15 @@
+meta {
+  name: Eliminar usuario
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/api/users/{{id}}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

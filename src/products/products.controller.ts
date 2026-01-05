@@ -19,7 +19,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Paginate, PaginatedSwaggerDocs, type PaginateQuery } from 'nestjs-paginate';
+import {
+  Paginate,
+  PaginatedSwaggerDocs,
+  type PaginateQuery,
+} from 'nestjs-paginate';
 
 import { Product } from './entities/product.entity';
 import { ProductsService } from './products.service';
@@ -86,7 +90,8 @@ export class ProductsController {
     type: Product,
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data, invalid UUID format, or category does not exist.',
+    description:
+      'Invalid input data, invalid UUID format, or category does not exist.',
   })
   @ApiNotFoundResponse({
     description: 'Product not found.',

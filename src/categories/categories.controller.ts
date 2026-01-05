@@ -19,7 +19,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Paginate, PaginatedSwaggerDocs, type PaginateQuery } from 'nestjs-paginate';
+import {
+  Paginate,
+  PaginatedSwaggerDocs,
+  type PaginateQuery,
+} from 'nestjs-paginate';
 
 import { Category } from './entities/category.entity';
 import { CategoriesService } from './categories.service';
@@ -30,7 +34,7 @@ import { CATEGORY_PAGINATION_CONFIG } from './config/category-pagination.config'
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new category' })
