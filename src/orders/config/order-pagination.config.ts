@@ -25,8 +25,6 @@ export const ORDER_PAGINATION_CONFIG: PaginateConfig<Order> = {
     'total',
     'notes',
     'closedAt',
-    'tableId',
-    'userId',
     'createdAt',
     'updatedAt',
     'table.id',

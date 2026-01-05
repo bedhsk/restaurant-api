@@ -24,7 +24,7 @@ import { AddItemsDto } from './dto/add-items.dto';
 import { OrderStatus } from './enum/order-status.enum';
 import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
 
-const TAX_RATE = 0.16; // 16% IVA
+const TAX_RATE = 0.12; // 12% IVA
 
 @Injectable()
 export class OrdersService {
@@ -42,7 +42,7 @@ export class OrdersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async create(createOrderDto: CreateOrderDto) {
     const { tableId, userId, notes, items } = createOrderDto;
@@ -93,7 +93,11 @@ export class OrdersService {
 
       await manager.save(OrderItem, orderItems);
 
-      return this.findOne(savedOrder.id);
+      // Use manager to query within transaction context
+      return manager.findOne(Order, {
+        where: { id: savedOrder.id },
+        relations: ['orderItems', 'orderItems.product', 'table', 'user'],
+      });
     });
   }
 
@@ -114,8 +118,6 @@ export class OrdersService {
         total: true,
         notes: true,
         closedAt: true,
-        tableId: true,
-        userId: true,
         createdAt: true,
         updatedAt: true,
         table: { id: true, tableNumber: true },
@@ -232,7 +234,11 @@ export class OrdersService {
 
       await manager.update(Order, id, { subtotal, tax, total });
 
-      return this.findOne(id);
+      // Use manager to query within transaction context
+      return manager.findOne(Order, {
+        where: { id },
+        relations: ['orderItems', 'orderItems.product', 'table', 'user'],
+      });
     });
   }
 
