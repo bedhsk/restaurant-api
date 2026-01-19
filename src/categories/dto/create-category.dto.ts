@@ -37,7 +37,6 @@ export class CreateCategoryDto {
     example: 1,
     minimum: 0,
     required: false,
-    default: 0,
   })
   @IsInt()
   @Min(0)

@@ -25,18 +25,21 @@ import {
   type PaginateQuery,
 } from 'nestjs-paginate';
 
+import { Auth } from 'src/auth/decorators';
 import { Category } from './entities/category.entity';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ValidRoles as Role } from 'src/auth/interfaces';
 import { CATEGORY_PAGINATION_CONFIG } from './config/category-pagination.config';
 
 @ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService) { }
 
   @Post()
+  @Auth(Role.manager)
   @ApiOperation({ summary: 'Create a new category' })
   @ApiCreatedResponse({
     description: 'The category has been successfully created.',
@@ -53,6 +56,7 @@ export class CategoriesController {
   }
 
   @Get()
+  @Auth(Role.manager)
   @ApiOperation({
     summary: 'List categories with pagination, filtering, and search',
   })
@@ -65,6 +69,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
+  @Auth(Role.manager)
   @ApiOperation({ summary: 'Get a category by its ID' })
   @ApiOkResponse({
     description: 'The category has been successfully retrieved.',
@@ -84,6 +89,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @Auth(Role.manager)
   @ApiOperation({ summary: 'Update a category by its ID' })
   @ApiOkResponse({
     description: 'The category has been successfully updated.',
@@ -106,6 +112,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @Auth(Role.manager)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a category by its ID' })
   @ApiOkResponse({

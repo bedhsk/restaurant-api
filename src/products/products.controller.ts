@@ -25,8 +25,10 @@ import {
   type PaginateQuery,
 } from 'nestjs-paginate';
 
+import { Auth } from 'src/auth/decorators';
 import { Product } from './entities/product.entity';
 import { ProductsService } from './products.service';
+import { ValidRoles as Role } from 'src/auth/interfaces';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PRODUCT_PAGINATION_CONFIG } from './config/product-pagination.config';
@@ -34,9 +36,10 @@ import { PRODUCT_PAGINATION_CONFIG } from './config/product-pagination.config';
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
+  @Post(Role.manager)
   @ApiOperation({ summary: 'Create a new product' })
   @ApiCreatedResponse({
     description: 'The product has been successfully created.',
@@ -53,6 +56,7 @@ export class ProductsController {
   }
 
   @Get()
+  @Auth(Role.manager, Role.cashier)
   @ApiOperation({
     summary: 'List products with pagination, filtering, and search',
   })
@@ -65,6 +69,7 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @Auth(Role.manager, Role.cashier)
   @ApiOperation({ summary: 'Get a product by its ID' })
   @ApiOkResponse({
     description: 'The product has been successfully retrieved.',
@@ -84,6 +89,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
+  @Auth(Role.manager)
   @ApiOperation({ summary: 'Update a product by its ID' })
   @ApiOkResponse({
     description: 'The product has been successfully updated.',
@@ -107,6 +113,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @Auth(Role.manager, Role.waiter)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a product by its ID' })
   @ApiOkResponse({

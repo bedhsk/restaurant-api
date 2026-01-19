@@ -32,13 +32,16 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddItemsDto } from './dto/add-items.dto';
 import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
+import { Auth } from 'src/auth/decorators';
+import { ValidRoles as Role } from 'src/auth/interfaces';
 
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
+  @Auth()
   @ApiOperation({ summary: 'Create a new order with items' })
   @ApiCreatedResponse({
     description: 'The order has been successfully created with all items.',
@@ -56,6 +59,7 @@ export class OrdersController {
   }
 
   @Get()
+  @Auth()
   @ApiOperation({
     summary: 'List orders with pagination, filtering, and search',
   })
@@ -68,6 +72,7 @@ export class OrdersController {
   }
 
   @Get(':id')
+  @Auth()
   @ApiOperation({ summary: 'Get an order by its ID with all items' })
   @ApiOkResponse({
     description: 'The order has been successfully retrieved with items.',
@@ -87,6 +92,7 @@ export class OrdersController {
   }
 
   @Patch(':id')
+  @Auth()
   @ApiOperation({ summary: 'Update order notes' })
   @ApiOkResponse({
     description: 'The order has been successfully updated.',
@@ -109,6 +115,7 @@ export class OrdersController {
   }
 
   @Patch(':id/status')
+  @Auth()
   @ApiOperation({ summary: 'Update order status' })
   @ApiOkResponse({
     description: 'The order status has been successfully updated.',
@@ -131,6 +138,7 @@ export class OrdersController {
   }
 
   @Post(':id/items')
+  @Auth()
   @ApiOperation({ summary: 'Add items to an existing order' })
   @ApiCreatedResponse({
     description: 'Items have been successfully added to the order.',
@@ -154,6 +162,7 @@ export class OrdersController {
   }
 
   @Delete(':id')
+  @Auth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete an order by its ID' })
   @ApiOkResponse({

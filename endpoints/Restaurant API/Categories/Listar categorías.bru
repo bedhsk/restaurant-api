@@ -7,9 +7,21 @@ meta {
 get {
   url: {{host}}/api/categories
   body: none
-  auth: inherit
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "{{name}}",
+    "description": {{description}}
+  }
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }

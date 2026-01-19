@@ -25,8 +25,10 @@ import {
   type PaginateQuery,
 } from 'nestjs-paginate';
 
+import { Auth } from 'src/auth/decorators';
 import { Table } from './entities/table.entity';
 import { TablesService } from './tables.service';
+import { ValidRoles as Role } from 'src/auth/interfaces';
 import { CreateTableDto } from './dto/create-table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { TABLE_PAGINATION_CONFIG } from './config/table-pagination.config';
@@ -34,9 +36,10 @@ import { TABLE_PAGINATION_CONFIG } from './config/table-pagination.config';
 @ApiTags('Tables')
 @Controller('tables')
 export class TablesController {
-  constructor(private readonly tablesService: TablesService) {}
+  constructor(private readonly tablesService: TablesService) { }
 
   @Post()
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({ summary: 'Create a new table' })
   @ApiCreatedResponse({
     description: 'The table has been successfully created.',
@@ -53,6 +56,7 @@ export class TablesController {
   }
 
   @Get()
+  @Auth(Role.admin, Role.manager, Role.waiter, Role.cashier)
   @ApiOperation({
     summary: 'List tables with pagination, filtering, and search',
   })
@@ -65,6 +69,7 @@ export class TablesController {
   }
 
   @Get(':id')
+  @Auth(Role.admin, Role.manager, Role.waiter, Role.cashier)
   @ApiOperation({ summary: 'Get a table by its ID' })
   @ApiOkResponse({
     description: 'The table has been successfully retrieved.',
@@ -84,6 +89,7 @@ export class TablesController {
   }
 
   @Patch(':id')
+  @Auth()
   @ApiOperation({ summary: 'Update a table by its ID' })
   @ApiOkResponse({
     description: 'The table has been successfully updated.',
@@ -106,6 +112,7 @@ export class TablesController {
   }
 
   @Delete(':id')
+  @Auth(Role.admin, Role.manager)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a table by its ID' })
   @ApiOkResponse({

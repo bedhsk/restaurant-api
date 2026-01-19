@@ -45,9 +45,8 @@ export class Category {
     example: 1,
     minimum: 0,
     required: false,
-    default: 0,
   })
-  @Column('int', { default: 0, name: 'display_order' })
+  @Column('int', { name: 'display_order', unique: true, generated: "increment" })
   displayOrder: number;
 
   @ApiProperty({

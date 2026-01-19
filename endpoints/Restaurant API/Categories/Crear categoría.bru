@@ -6,10 +6,27 @@ meta {
 
 post {
   url: {{host}}/api/categories
-  body: none
-  auth: inherit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "{{name}}",
+    "description": "{{description}}"
+  }
+}
+
+vars:pre-request {
+  name: Postres
+  description: Deliciosos postres
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }

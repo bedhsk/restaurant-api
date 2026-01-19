@@ -5,8 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { DatabaseError } from 'pg';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 
@@ -26,7 +25,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) {}
+  ) { }
 
   async create(createProductDto: CreateProductDto) {
     await this.validateCategoryExists(createProductDto.categoryId);
@@ -115,16 +114,18 @@ export class ProductsService {
   }
 
   private handleExceptions(error: unknown): never {
-    if (error instanceof DatabaseError) {
-      if (error.code === '23505') {
-        this.logger.error(`Violation UNIQUE: ${error.detail}`);
+    if (error instanceof QueryFailedError) {
+      const driverError = error.driverError as { code?: string; detail?: string };
+
+      if (driverError.code === '23505') {
+        this.logger.error(`Violation UNIQUE: ${driverError.detail}`);
         throw new BadRequestException(
           'A product with this information already exists',
         );
       }
 
-      if (error.code === '23503') {
-        this.logger.error(`Foreign key violation: ${error.detail}`);
+      if (driverError.code === '23503') {
+        this.logger.error(`Foreign key violation: ${driverError.detail}`);
         throw new BadRequestException('Invalid category reference');
       }
     }

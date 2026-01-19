@@ -14,7 +14,6 @@ import { Order } from './entities/order.entity';
 import { OrderItem } from '../order-items/entities/order-item.entity';
 import { Product } from '../products/entities/product.entity';
 import { Table } from '../tables/entities/table.entity';
-import { User } from '../users/entities/user.entity';
 
 import { CreateOrderDto, OrderItemInputDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -39,8 +38,7 @@ export class OrdersService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Table)
     private readonly tableRepository: Repository<Table>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+
     private readonly dataSource: DataSource,
   ) { }
 
@@ -49,7 +47,6 @@ export class OrdersService {
 
     // Validate table and user exist
     await this.validateTableExists(tableId);
-    await this.validateUserExists(userId);
 
     // Validate products and get their prices
     const productIds = items.map((item) => item.productId);
@@ -312,13 +309,6 @@ export class OrdersService {
     const exists = await this.tableRepository.existsBy({ id: tableId });
     if (!exists) {
       throw new BadRequestException(`Table with id "${tableId}" not found`);
-    }
-  }
-
-  private async validateUserExists(userId: string): Promise<void> {
-    const exists = await this.userRepository.existsBy({ id: userId });
-    if (!exists) {
-      throw new BadRequestException(`User with id "${userId}" not found`);
     }
   }
 

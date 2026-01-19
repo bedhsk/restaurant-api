@@ -4,12 +4,12 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UsersModule } from './users/users.module';
 import { OrdersModule } from './orders/orders.module';
 import { OrderItemsModule } from './order-items/order-items.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TablesModule } from './tables/tables.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,14 +24,14 @@ import { TablesModule } from './tables/tables.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    UsersModule,
     ProductsModule,
     TablesModule,
     OrdersModule,
     CategoriesModule,
     OrderItemsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -10,10 +10,10 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Table } from '../../tables/entities/table.entity';
-import { User } from '../../users/entities/user.entity';
-import { OrderItem } from '../../order-items/entities/order-item.entity';
 import { OrderStatus } from '../enum/order-status.enum';
+import { OrderItem } from '../../order-items/entities/order-item.entity';
+import { Table } from '../../tables/entities/table.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Entity('orders')
 export class Order {
