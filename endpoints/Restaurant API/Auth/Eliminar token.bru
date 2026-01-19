@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar token
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/api/auth/logout
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

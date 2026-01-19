@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
       await this.userRepository.save(user);
       return {
         ...this.sanitizeUser(user),
-        token: this.getJwtToken({ id: user.id })
+        token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion })
       };
     } catch (error) {
       this.handleExceptions(error);
@@ -41,7 +42,7 @@ export class AuthService {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { id: true, email: true, password: true }
+      select: { id: true, email: true, password: true, tokenVersion: true }
     });
 
     if (!user) {
@@ -54,24 +55,14 @@ export class AuthService {
 
     return {
       ...this.sanitizeUser(user),
-      token: this.getJwtToken({ id: user.id })
+      token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion })
     };
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  // update(id: number, updateAuthDto: UpdateAuthDto) {
-  //   return `This action updates a #${id} auth`;
-  // }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async revokeTokens(user: User) {
+    user.tokenVersion += 1;
+    await this.userRepository.save(user);
+    return `User ${user.name} session closed`;
   }
 
   private sanitizeUser(user: User): Omit<User, 'password'> {
@@ -79,9 +70,8 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  private getJwtToken(payload: JwtPayload) {
-    const token = this.jwtService.sign(payload);
-    return token;
+  private getJwtToken(payload: JwtPayload): string {
+    return this.jwtService.sign(payload);
   }
 
   private handleExceptions(error: unknown): never {

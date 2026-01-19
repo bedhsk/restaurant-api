@@ -19,6 +19,9 @@ export class User {
   @Column('varchar', { array: true, default: [Role.manager] })
   roles: string[];
 
+  @Column({ default: 0 })
+  tokenVersion: number;
+
   // Relations
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];

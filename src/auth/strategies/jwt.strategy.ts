@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     ) {
         const jwtSecret = configService.get<string>('JWT_SECRET');
         if (!jwtSecret) {
-            throw new Error('JWT_SECRET enviroment variable is not configured');
+            throw new Error('JWT_SECRET environment variable is not configured');
         }
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -27,10 +27,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: JwtPayload): Promise<User> {
-        // const { email } = payload;
-        const { id } = payload;
+        const { id, tokenVersion } = payload;
 
-        // const user = await this.userRepository.findOneBy({ email });
         const user = await this.userRepository.findOneBy({ id });
 
         if (!user) {
@@ -39,6 +37,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
         if (!user.isActive) {
             throw new UnauthorizedException('User inactive, talk to an admin');
+        }
+
+        if (tokenVersion !== undefined && user.tokenVersion !== tokenVersion) {
+            throw new UnauthorizedException('Token has been revoked');
         }
 
         return user;
