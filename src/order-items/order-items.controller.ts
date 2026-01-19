@@ -15,20 +15,31 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiBearerAuth,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { Auth } from 'src/auth/decorators';
 import { OrderItem } from './entities/order-item.entity';
 import { OrderItemsService } from './order-items.service';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 
+/**
+ * Order Items Controller
+ * Manages individual items within orders.
+ * All endpoints require authentication (any authenticated user).
+ */
 @ApiTags('Order Items')
+@ApiBearerAuth()
 @Controller('order-items')
 export class OrderItemsController {
   constructor(private readonly orderItemsService: OrderItemsService) {}
 
   @Patch(':id')
+  @Auth()
   @ApiOperation({
     summary: 'Update an order item (quantity, notes, or status)',
+    description: 'Roles: Any authenticated user',
   })
   @ApiOkResponse({
     description: 'The order item has been successfully updated.',
@@ -39,6 +50,9 @@ export class OrderItemsController {
   })
   @ApiNotFoundResponse({
     description: 'Order item not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -51,8 +65,12 @@ export class OrderItemsController {
   }
 
   @Delete(':id')
+  @Auth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Remove an order item' })
+  @ApiOperation({
+    summary: 'Remove an order item',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({
     description: 'The order item has been successfully removed.',
   })
@@ -62,6 +80,9 @@ export class OrderItemsController {
   })
   @ApiNotFoundResponse({
     description: 'Order item not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',

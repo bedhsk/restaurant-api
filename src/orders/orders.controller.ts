@@ -18,6 +18,8 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiBearerAuth,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
   Paginate,
@@ -33,16 +35,24 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddItemsDto } from './dto/add-items.dto';
 import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
 import { Auth } from 'src/auth/decorators';
-import { ValidRoles as Role } from 'src/auth/interfaces';
 
+/**
+ * Orders Controller
+ * Manages customer orders including creation, status updates, and item management.
+ * All endpoints require authentication (any authenticated user).
+ */
 @ApiTags('Orders')
+@ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
   @Auth()
-  @ApiOperation({ summary: 'Create a new order with items' })
+  @ApiOperation({
+    summary: 'Create a new order with items',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiCreatedResponse({
     description: 'The order has been successfully created with all items.',
     type: Order,
@@ -50,6 +60,9 @@ export class OrdersController {
   @ApiBadRequestResponse({
     description:
       'Invalid input data, table/user/products not found, or products unavailable.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -62,8 +75,12 @@ export class OrdersController {
   @Auth()
   @ApiOperation({
     summary: 'List orders with pagination, filtering, and search',
+    description: 'Roles: Any authenticated user',
   })
   @PaginatedSwaggerDocs(Order, ORDER_PAGINATION_CONFIG)
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
@@ -73,7 +90,10 @@ export class OrdersController {
 
   @Get(':id')
   @Auth()
-  @ApiOperation({ summary: 'Get an order by its ID with all items' })
+  @ApiOperation({
+    summary: 'Get an order by its ID with all items',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({
     description: 'The order has been successfully retrieved with items.',
     type: Order,
@@ -84,6 +104,9 @@ export class OrdersController {
   @ApiNotFoundResponse({
     description: 'Order not found.',
   })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
@@ -93,7 +116,10 @@ export class OrdersController {
 
   @Patch(':id')
   @Auth()
-  @ApiOperation({ summary: 'Update order notes' })
+  @ApiOperation({
+    summary: 'Update order notes',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({
     description: 'The order has been successfully updated.',
     type: Order,
@@ -103,6 +129,9 @@ export class OrdersController {
   })
   @ApiNotFoundResponse({
     description: 'Order not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -116,7 +145,10 @@ export class OrdersController {
 
   @Patch(':id/status')
   @Auth()
-  @ApiOperation({ summary: 'Update order status' })
+  @ApiOperation({
+    summary: 'Update order status',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({
     description: 'The order status has been successfully updated.',
     type: Order,
@@ -126,6 +158,9 @@ export class OrdersController {
   })
   @ApiNotFoundResponse({
     description: 'Order not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -139,7 +174,10 @@ export class OrdersController {
 
   @Post(':id/items')
   @Auth()
-  @ApiOperation({ summary: 'Add items to an existing order' })
+  @ApiOperation({
+    summary: 'Add items to an existing order',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiCreatedResponse({
     description: 'Items have been successfully added to the order.',
     type: Order,
@@ -150,6 +188,9 @@ export class OrdersController {
   })
   @ApiNotFoundResponse({
     description: 'Order not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -164,7 +205,10 @@ export class OrdersController {
   @Delete(':id')
   @Auth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete an order by its ID' })
+  @ApiOperation({
+    summary: 'Delete an order by its ID',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({
     description: 'The order has been successfully deleted.',
     type: Order,
@@ -174,6 +218,9 @@ export class OrdersController {
   })
   @ApiNotFoundResponse({
     description: 'Order not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
