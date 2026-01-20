@@ -48,7 +48,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) { }
 
   @Post()
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({
     summary: 'Create a new category',
     description: 'Roles: manager',
@@ -74,7 +74,7 @@ export class CategoriesController {
   }
 
   @Get()
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({
     summary: 'List categories with pagination, filtering, and search',
     description: 'Roles: manager',
@@ -94,7 +94,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({
     summary: 'Get a category by its ID',
     description: 'Roles: manager',
@@ -123,7 +123,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({
     summary: 'Update a category by its ID',
     description: 'Roles: manager',
@@ -155,7 +155,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete a category by its ID',

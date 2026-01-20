@@ -74,7 +74,7 @@ export class TablesController {
   }
 
   @Get()
-  @Auth(Role.admin, Role.manager, Role.waiter, Role.cashier)
+  @Auth()
   @ApiOperation({
     summary: 'List tables with pagination, filtering, and search',
     description: 'Roles: admin, manager, waiter, cashier',

@@ -22,6 +22,14 @@ vars:pre-request {
   password: Bbbbbbb7
 }
 
+script:post-response {
+  const body = res.getBody();
+  
+  if (body && body.token) {
+    bru.setEnvVar("token", body.token);
+  }
+}
+
 settings {
   encodeUrl: true
   timeout: 0

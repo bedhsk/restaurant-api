@@ -10,13 +10,11 @@ import { Product } from '../products/entities/product.entity';
 import { Table } from '../tables/entities/table.entity';
 
 import { OrderItemsModule } from '../order-items/order-items.module';
-import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Product, Table]),
-    forwardRef(() => OrderItemsModule),
-    AuthModule
+    forwardRef(() => OrderItemsModule)
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

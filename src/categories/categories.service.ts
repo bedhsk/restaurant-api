@@ -23,11 +23,19 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) {}
+  ) { }
 
   async create(createCategoryDto: CreateCategoryDto) {
     try {
-      const category = this.categoryRepository.create(createCategoryDto);
+      const maxOrder = await this.categoryRepository
+        .createQueryBuilder('category')
+        .select('MAX(category.displayOrder)', 'max')
+        .getRawOne();
+
+      const category = this.categoryRepository.create({
+        ...createCategoryDto,
+        displayOrder: (maxOrder?.max ?? 0) + 1,
+      });
       return await this.categoryRepository.save(category);
     } catch (error) {
       this.handleExceptions(error);
@@ -83,7 +91,18 @@ export class CategoriesService {
       throw new NotFoundException(`Category with id "${id}" not found`);
     }
 
-    return this.categoryRepository.remove(category);
+    const deletedOrder = category.displayOrder;
+    this.categoryRepository.remove(category);
+
+    // Reordenar las categorías con displayOrder mayor
+    await this.categoryRepository
+      .createQueryBuilder()
+      .update(Category)
+      .set({ displayOrder: () => 'display_order - 1' })
+      .where('display_order > :deletedOrder', { deletedOrder })
+      .execute();
+
+    return category;
   }
 
   private handleExceptions(error: unknown): never {
