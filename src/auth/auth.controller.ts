@@ -1,4 +1,11 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -20,12 +27,12 @@ import { Auth, GetUser } from './decorators';
  * Auth Controller
  * Handles user authentication: registration, login, and logout.
  * Public endpoints: register, login
- * Protected endpoints: logout (requires valid JWT)
+ * Protected endpoints: check-status, logout (requires valid JWT)
  */
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({
@@ -33,7 +40,8 @@ export class AuthController {
     description: 'Public endpoint - No authentication required',
   })
   @ApiCreatedResponse({
-    description: 'User successfully registered. Returns user data and JWT token.',
+    description:
+      'User successfully registered. Returns user data and JWT token.',
     schema: {
       example: {
         id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
@@ -41,9 +49,9 @@ export class AuthController {
         email: 'john@restaurant.com',
         roles: ['manager'],
         isActive: true,
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-      }
-    }
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      },
+    },
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data or email already exists.',
@@ -67,9 +75,9 @@ export class AuthController {
       example: {
         id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
         email: 'john@restaurant.com',
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-      }
-    }
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      },
+    },
   })
   @ApiUnauthorizedResponse({
     description: 'Invalid credentials (wrong email or password).',
@@ -79,6 +87,23 @@ export class AuthController {
   })
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Get('check-status')
+  @Auth()
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check authentication status and get new token',
+    description: 'Roles: Any authenticated user',
+  })
+  @ApiOkResponse({
+    description: 'User is authenticated. Returns user data and new token.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
+  checkAuthStatus(@GetUser() user: User) {
+    return this.authService.checkAuthStatus(user);
   }
 
   @Post('logout')
@@ -92,8 +117,8 @@ export class AuthController {
   @ApiOkResponse({
     description: 'Logout successful. Token has been invalidated.',
     schema: {
-      example: 'User John Doe session closed'
-    }
+      example: 'User John Doe session closed',
+    },
   })
   @ApiUnauthorizedResponse({
     description: 'Invalid or expired JWT token.',

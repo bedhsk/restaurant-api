@@ -14,10 +14,10 @@ import { OrderItemsModule } from '../order-items/order-items.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Product, Table]),
-    forwardRef(() => OrderItemsModule)
+    forwardRef(() => OrderItemsModule),
   ],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

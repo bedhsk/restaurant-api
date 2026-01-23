@@ -1,0 +1,37 @@
+meta {
+  name: Actualizar estado
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/api/orders/{{id}}/status
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status": "{{status}}"
+  }
+}
+
+vars:pre-request {
+  id: 
+  status: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Status:
+  1. 'open'
+  2. 'in_progress'
+  3. 'ready'
+  4. 'delivered'
+  5. 'paid'
+  6. 'cancelled'
+}

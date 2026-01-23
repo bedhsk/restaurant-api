@@ -22,6 +22,8 @@ import { AddItemsDto } from './dto/add-items.dto';
 
 import { OrderStatus } from './enum/order-status.enum';
 import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
+import { TableStatus } from 'src/tables/enums/table-status.enum';
+import { User } from 'src/auth/entities/user.entity';
 
 const TAX_RATE = 0.12; // 12% IVA
 
@@ -40,13 +42,23 @@ export class OrdersService {
     private readonly tableRepository: Repository<Table>,
 
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
-  async create(createOrderDto: CreateOrderDto) {
-    const { tableId, userId, notes, items } = createOrderDto;
+  async create(createOrderDto: CreateOrderDto, user: User) {
+    const { tableId, notes, items } = createOrderDto;
 
-    // Validate table and user exist
-    await this.validateTableExists(tableId);
+    // Validate table exists and get table
+    const table = await this.tableRepository.findOneBy({ id: tableId });
+    if (!table) {
+      throw new BadRequestException(`Table with id "${tableId}" not found`);
+    }
+    if (table.status !== TableStatus.AVAILABLE) {
+      throw new BadRequestException(
+        `Table is not available, please check table status`,
+      );
+    }
+
+    // Validate user exists
 
     // Validate products and get their prices
     const productIds = items.map((item) => item.productId);
@@ -70,7 +82,7 @@ export class OrdersService {
       const order = manager.create(Order, {
         orderNumber,
         tableId,
-        userId,
+        user,
         notes,
         subtotal,
         tax,
@@ -89,6 +101,10 @@ export class OrdersService {
       );
 
       await manager.save(OrderItem, orderItems);
+
+      // Change table status
+      table.status = TableStatus.OCCUPIED;
+      await this.tableRepository.save(table);
 
       // Use manager to query within transaction context
       return manager.findOne(Order, {
@@ -303,13 +319,6 @@ export class OrdersService {
     }
 
     return `ORD-${dateStr}-${sequence.toString().padStart(3, '0')}`;
-  }
-
-  private async validateTableExists(tableId: string): Promise<void> {
-    const exists = await this.tableRepository.existsBy({ id: tableId });
-    if (!exists) {
-      throw new BadRequestException(`Table with id "${tableId}" not found`);
-    }
   }
 
   private async validateProductsExist(

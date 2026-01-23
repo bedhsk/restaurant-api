@@ -34,7 +34,8 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddItemsDto } from './dto/add-items.dto';
 import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
+import { User } from 'src/auth/entities/user.entity';
 
 /**
  * Orders Controller
@@ -45,7 +46,7 @@ import { Auth } from 'src/auth/decorators';
 @ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   @Auth()
@@ -67,8 +68,8 @@ export class OrdersController {
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
   })
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto, @GetUser() user: User) {
+    return this.ordersService.create(createOrderDto, user);
   }
 
   @Get()

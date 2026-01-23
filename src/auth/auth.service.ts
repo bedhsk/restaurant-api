@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import { compareSync, hashSync } from 'bcrypt';
@@ -6,18 +12,18 @@ import { compareSync, hashSync } from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name)
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
 
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -25,12 +31,15 @@ export class AuthService {
       const user = this.userRepository.create({
         ...userData,
         email: email.toLowerCase().trim(),
-        password: hashSync(password, 10)
+        password: hashSync(password, 10),
       });
       await this.userRepository.save(user);
       return {
         ...this.sanitizeUser(user),
-        token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion })
+        token: this.getJwtToken({
+          id: user.id,
+          tokenVersion: user.tokenVersion,
+        }),
       };
     } catch (error) {
       this.handleExceptions(error);
@@ -41,7 +50,7 @@ export class AuthService {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { id: true, email: true, password: true, tokenVersion: true }
+      select: { id: true, email: true, password: true, tokenVersion: true },
     });
 
     if (!user) {
@@ -54,7 +63,14 @@ export class AuthService {
 
     return {
       ...this.sanitizeUser(user),
-      token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion })
+      token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
+    };
+  }
+
+  checkAuthStatus(user: User) {
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
     };
   }
 
@@ -75,7 +91,10 @@ export class AuthService {
 
   private handleExceptions(error: unknown): never {
     if (error instanceof QueryFailedError) {
-      const driverError = error.driverError as { code?: string; detail?: string };
+      const driverError = error.driverError as {
+        code?: string;
+        detail?: string;
+      };
 
       if (driverError.code === '23505') {
         this.logger.error(`Violation UNIQUE: ${driverError.detail}`);

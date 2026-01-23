@@ -47,14 +47,6 @@ export class CreateOrderDto {
   tableId: string;
 
   @ApiProperty({
-    description: 'ID of the user (waiter/staff) creating the order',
-    example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  userId: string;
-
-  @ApiProperty({
     description: 'Additional notes for the entire order',
     example: 'Birthday celebration, bring cake at the end',
     required: false,

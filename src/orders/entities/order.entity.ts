@@ -99,16 +99,13 @@ export class Order {
     description: 'User (waiter/staff) who created the order',
     type: () => User,
   })
-  @ManyToOne(() => User, (user) => user.orders)
+  @ManyToOne(
+    () => User,
+    (user) => user.orders,
+    // { eager: true }
+  )
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @ApiProperty({
-    description: 'ID of the user who created the order',
-    example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
-  })
-  @Column('uuid', { name: 'user_id' })
-  userId: string;
 
   @ApiProperty({
     description: 'Items included in this order',
