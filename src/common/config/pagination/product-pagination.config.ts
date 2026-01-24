@@ -1,7 +1,7 @@
 import { PaginateConfig } from 'nestjs-paginate';
-import { Product } from '../entities/product.entity';
+import { Product } from 'src/products/entities/product.entity';
 
-export const PRODUCT_PAGINATION_CONFIG: PaginateConfig<Product> = {
+export const PRODUCT_PAGINATION: PaginateConfig<Product> = {
   sortableColumns: [
     'name',
     'price',

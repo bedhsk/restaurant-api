@@ -1,0 +1,20 @@
+meta {
+  name: Actualizar usuario
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/api/auth/users/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

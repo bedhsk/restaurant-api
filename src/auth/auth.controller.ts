@@ -1,27 +1,36 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
-  Get,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiCreatedResponse,
-  ApiOkResponse,
   ApiBadRequestResponse,
-  ApiUnauthorizedResponse,
-  ApiInternalServerErrorResponse,
   ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { Paginate, type PaginateQuery } from 'nestjs-paginate';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
 import { Auth, GetUser } from './decorators';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { User } from './entities/user.entity';
+import { UpdateUserDto } from './dto';
+import { ValidRoles as Role } from './interfaces';
 
 /**
  * Auth Controller
@@ -128,5 +137,125 @@ export class AuthController {
   })
   logout(@GetUser() user: User) {
     return this.authService.revokeTokens(user);
+  }
+
+  @Get('users')
+  @Auth(Role.admin, Role.manager)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get all users with pagination',
+    description: `Returns a paginated list of users. Roles: admin, manager
+    **Filters:**
+    - \`filter.isActive=true\` - Only active users
+    - \`filter.isActive=false\` - Only inactive users
+
+    **Search:** \`search=john\` - Search by name or email
+
+    **Sort:** \`sortBy=name:ASC\` or \`sortBy=createdAt:DESC\``,
+  })
+  @ApiOkResponse({
+    description: 'Paginated list of users returned successfully.',
+    schema: {
+      example: {
+        data: [
+          {
+            id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
+            name: 'John Doe',
+            email: 'john@restaurant.com',
+            roles: ['manager'],
+            isActive: true,
+            createdAt: '2024-01-15T10:30:00Z',
+            updatedAt: '2024-01-15T10:30:00Z',
+          },
+        ],
+        meta: {
+          itemsPerPage: 10,
+          totalItems: 1,
+          currentPage: 1,
+          totalPages: 1,
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
+  @ApiForbiddenResponse({
+    description: 'User does not have required roles (admin, manager).',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  findAll(@Paginate() query: PaginateQuery) {
+    return this.authService.findAllUsers(query);
+  }
+
+  @Patch('users/:id')
+  @Auth(Role.admin, Role.manager)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update user information',
+    description:
+      'Updates user data such as name, email, or roles. Roles: admin, manager',
+  })
+  @ApiOkResponse({
+    description: 'User updated successfully.',
+    schema: {
+      example: {
+        id: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
+        name: 'John Doe Updated',
+        email: 'john.updated@restaurant.com',
+        roles: ['admin'],
+        isActive: true,
+        createdAt: '2024-01-15T10:30:00Z',
+        updatedAt: '2024-01-16T14:00:00Z',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data or email already exists.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
+  @ApiForbiddenResponse({
+    description: 'User does not have required roles (admin, manager).',
+  })
+  @ApiNotFoundResponse({
+    description: 'User with the specified ID not found.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.authService.updateUser(id, updateUserDto);
+  }
+
+  @Delete('users/:id')
+  @Auth(Role.admin, Role.manager)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Deactivate a user (soft delete)',
+    description:
+      'Sets the user isActive status to false. The user record is preserved in the database. Roles: admin, manager',
+  })
+  @ApiNoContentResponse({
+    description: 'User deactivated successfully.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
+  @ApiForbiddenResponse({
+    description: 'User does not have required roles (admin, manager).',
+  })
+  @ApiNotFoundResponse({
+    description: 'User with the specified ID not found.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
+  deleteUser(@Param('id') id: string) {
+    return this.authService.softDeleteUser(id);
   }
 }

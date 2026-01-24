@@ -1,7 +1,7 @@
 import { PaginateConfig } from 'nestjs-paginate';
-import { Table } from '../entities/table.entity';
+import { Table } from 'src/tables/entities/table.entity';
 
-export const TABLE_PAGINATION_CONFIG: PaginateConfig<Table> = {
+export const TABLE_PAGINATION: PaginateConfig<Table> = {
   sortableColumns: [
     'tableNumber',
     'capacity',

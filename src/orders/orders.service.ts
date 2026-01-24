@@ -21,9 +21,9 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddItemsDto } from './dto/add-items.dto';
 
 import { OrderStatus } from './enum/order-status.enum';
-import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
 import { TableStatus } from 'src/tables/enums/table-status.enum';
 import { User } from 'src/auth/entities/user.entity';
+import { ORDER_PAGINATION } from 'src/common/config/pagination';
 
 const TAX_RATE = 0.12; // 12% IVA
 
@@ -57,8 +57,6 @@ export class OrdersService {
         `Table is not available, please check table status`,
       );
     }
-
-    // Validate user exists
 
     // Validate products and get their prices
     const productIds = items.map((item) => item.productId);
@@ -115,7 +113,7 @@ export class OrdersService {
   }
 
   async findAll(query: PaginateQuery) {
-    return paginate(query, this.orderRepository, ORDER_PAGINATION_CONFIG);
+    return paginate(query, this.orderRepository, ORDER_PAGINATION);
   }
 
   async findOne(id: string) {

@@ -6,9 +6,7 @@ import { updateGlobalConfig } from 'nestjs-paginate';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   app.enableCors();
-
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(
@@ -30,8 +28,10 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/doc', app, documentFactory);
+  SwaggerModule.setup('api/doc', app, documentFactory, {
+    customCss: './common/swagger/swagger-dark.css',
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();

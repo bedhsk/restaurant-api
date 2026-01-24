@@ -14,7 +14,7 @@ import { UpdateTableDto } from './dto/update-table.dto';
 import { CreateTableDto } from './dto/create-table.dto';
 
 import { Table } from './entities/table.entity';
-import { TABLE_PAGINATION_CONFIG } from './config/table-pagination.config';
+import { TABLE_PAGINATION } from 'src/common/config/pagination';
 
 @Injectable()
 export class TablesService {
@@ -35,7 +35,7 @@ export class TablesService {
   }
 
   async findAll(query: PaginateQuery) {
-    return paginate(query, this.tableRepository, TABLE_PAGINATION_CONFIG);
+    return paginate(query, this.tableRepository, TABLE_PAGINATION);
   }
 
   async findOne(id: string) {

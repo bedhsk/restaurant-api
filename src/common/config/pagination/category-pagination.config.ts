@@ -1,7 +1,7 @@
 import { PaginateConfig } from 'nestjs-paginate';
-import { Category } from '../entities/category.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
-export const CATEGORY_PAGINATION_CONFIG: PaginateConfig<Category> = {
+export const CATEGORY_PAGINATION: PaginateConfig<Category> = {
   sortableColumns: ['name', 'displayOrder', 'isActive', 'createdAt'],
 
   defaultSortBy: [

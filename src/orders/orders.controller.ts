@@ -1,24 +1,24 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  ParseUUIDPipe,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
 } from '@nestjs/common';
 import {
-  ApiCreatedResponse,
   ApiBadRequestResponse,
-  ApiNotFoundResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiBearerAuth,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
@@ -27,15 +27,15 @@ import {
   type PaginateQuery,
 } from 'nestjs-paginate';
 
-import { Order } from './entities/order.entity';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { AddItemsDto } from './dto/add-items.dto';
-import { ORDER_PAGINATION_CONFIG } from './config/order-pagination.config';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
+import { ORDER_PAGINATION } from 'src/common/config/pagination';
+import { AddItemsDto } from './dto/add-items.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { Order } from './entities/order.entity';
+import { OrdersService } from './orders.service';
 
 /**
  * Orders Controller
@@ -78,7 +78,7 @@ export class OrdersController {
     summary: 'List orders with pagination, filtering, and search',
     description: 'Roles: Any authenticated user',
   })
-  @PaginatedSwaggerDocs(Order, ORDER_PAGINATION_CONFIG)
+  @PaginatedSwaggerDocs(Order, ORDER_PAGINATION)
   @ApiUnauthorizedResponse({
     description: 'Invalid or expired JWT token.',
   })

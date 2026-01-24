@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar usuario
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{host}}/api/auth/users/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

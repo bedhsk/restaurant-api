@@ -34,7 +34,7 @@ import { TablesService } from './tables.service';
 import { ValidRoles as Role } from 'src/auth/interfaces';
 import { CreateTableDto } from './dto/create-table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
-import { TABLE_PAGINATION_CONFIG } from './config/table-pagination.config';
+import { TABLE_PAGINATION } from 'src/common/config/pagination';
 
 /**
  * Tables Controller
@@ -45,7 +45,7 @@ import { TABLE_PAGINATION_CONFIG } from './config/table-pagination.config';
 @ApiBearerAuth()
 @Controller('tables')
 export class TablesController {
-  constructor(private readonly tablesService: TablesService) { }
+  constructor(private readonly tablesService: TablesService) {}
 
   @Post()
   @Auth(Role.admin, Role.manager)
@@ -79,12 +79,13 @@ export class TablesController {
     summary: 'List tables with pagination, filtering, and search',
     description: 'Roles: admin, manager, waiter, cashier',
   })
-  @PaginatedSwaggerDocs(Table, TABLE_PAGINATION_CONFIG)
+  @PaginatedSwaggerDocs(Table, TABLE_PAGINATION)
   @ApiUnauthorizedResponse({
     description: 'Invalid or expired JWT token.',
   })
   @ApiForbiddenResponse({
-    description: 'User does not have the required role (admin, manager, waiter, cashier).',
+    description:
+      'User does not have the required role (admin, manager, waiter, cashier).',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
@@ -113,7 +114,8 @@ export class TablesController {
     description: 'Invalid or expired JWT token.',
   })
   @ApiForbiddenResponse({
-    description: 'User does not have the required role (admin, manager, waiter, cashier).',
+    description:
+      'User does not have the required role (admin, manager, waiter, cashier).',
   })
   @ApiInternalServerErrorResponse({
     description: 'Internal server error.',
