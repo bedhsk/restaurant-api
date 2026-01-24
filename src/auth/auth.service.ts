@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,9 +11,11 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { compareSync, hashSync } from 'bcrypt';
 
 import { User } from './entities/user.entity';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
+import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { USER_PAGINATION } from 'src/common/config/pagination';
 
 @Injectable()
 export class AuthService {
@@ -67,6 +70,38 @@ export class AuthService {
     };
   }
 
+  findAllUsers(query: PaginateQuery) {
+    return paginate(query, this.userRepository, USER_PAGINATION);
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.preload({
+      id,
+      ...updateUserDto,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    try {
+      return await this.userRepository.save(user);
+    } catch (error: unknown) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async softDeleteUser(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    user.isActive = false;
+    await this.userRepository.save(user);
+  }
+
   checkAuthStatus(user: User) {
     return {
       ...user,
@@ -81,7 +116,7 @@ export class AuthService {
   }
 
   private sanitizeUser(user: User): Omit<User, 'password'> {
-    const { password, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 

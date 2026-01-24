@@ -1,7 +1,7 @@
 import { PaginateConfig } from 'nestjs-paginate';
-import { Order } from '../entities/order.entity';
+import { Order } from 'src/orders/entities/order.entity';
 
-export const ORDER_PAGINATION_CONFIG: PaginateConfig<Order> = {
+export const ORDER_PAGINATION: PaginateConfig<Order> = {
   sortableColumns: ['orderNumber', 'status', 'total', 'createdAt', 'closedAt'],
 
   defaultSortBy: [['createdAt', 'DESC']],

@@ -17,14 +17,14 @@ import { User } from './entities/user.entity';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: '1h' },
       }),
-    })
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [TypeOrmModule, JwtStrategy, PassportModule]
+  exports: [TypeOrmModule, JwtStrategy, PassportModule],
 })
-export class AuthModule { }
+export class AuthModule {}

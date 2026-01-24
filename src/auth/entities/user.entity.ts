@@ -1,7 +1,14 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Order } from "src/orders/entities/order.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { ValidRoles as Role } from "../interfaces";
+import { ApiProperty } from '@nestjs/swagger';
+import { Order } from 'src/orders/entities/order.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { ValidRoles as Role } from '../interfaces';
 
 /**
  * User Entity
@@ -74,4 +81,10 @@ export class User {
   })
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

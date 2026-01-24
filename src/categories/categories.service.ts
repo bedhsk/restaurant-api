@@ -14,7 +14,11 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 import { Category } from './entities/category.entity';
-import { CATEGORY_PAGINATION_CONFIG } from './config/category-pagination.config';
+import { CATEGORY_PAGINATION } from 'src/common/config/pagination';
+
+interface MaxOrderResult {
+  max: number | null;
+}
 
 @Injectable()
 export class CategoriesService {
@@ -23,27 +27,27 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) { }
+  ) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
     try {
-      const maxOrder = await this.categoryRepository
+      const nextOrder = await this.categoryRepository
         .createQueryBuilder('category')
         .select('MAX(category.displayOrder)', 'max')
-        .getRawOne();
+        .getRawOne<MaxOrderResult>();
 
       const category = this.categoryRepository.create({
         ...createCategoryDto,
-        displayOrder: (maxOrder?.max ?? 0) + 1,
+        displayOrder: (nextOrder?.max ?? 0) + 1,
       });
       return await this.categoryRepository.save(category);
-    } catch (error) {
+    } catch (error: unknown) {
       this.handleExceptions(error);
     }
   }
 
   async findAll(query: PaginateQuery) {
-    return paginate(query, this.categoryRepository, CATEGORY_PAGINATION_CONFIG);
+    return paginate(query, this.categoryRepository, CATEGORY_PAGINATION);
   }
 
   async findOne(id: string) {
@@ -92,7 +96,7 @@ export class CategoriesService {
     }
 
     const deletedOrder = category.displayOrder;
-    this.categoryRepository.remove(category);
+    await this.categoryRepository.remove(category);
 
     // Reordenar las categorías con displayOrder mayor
     await this.categoryRepository

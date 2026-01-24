@@ -34,7 +34,7 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ValidRoles as Role } from 'src/auth/interfaces';
-import { CATEGORY_PAGINATION_CONFIG } from './config/category-pagination.config';
+import { CATEGORY_PAGINATION } from 'src/common/config/pagination';
 
 /**
  * Categories Controller
@@ -45,7 +45,7 @@ import { CATEGORY_PAGINATION_CONFIG } from './config/category-pagination.config'
 @ApiBearerAuth()
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
   @Auth(Role.admin, Role.manager)
@@ -79,7 +79,7 @@ export class CategoriesController {
     summary: 'List categories with pagination, filtering, and search',
     description: 'Roles: manager',
   })
-  @PaginatedSwaggerDocs(Category, CATEGORY_PAGINATION_CONFIG)
+  @PaginatedSwaggerDocs(Category, CATEGORY_PAGINATION)
   @ApiUnauthorizedResponse({
     description: 'Invalid or expired JWT token.',
   })

@@ -14,7 +14,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 
 import { Product } from './entities/product.entity';
 import { Category } from '../categories/entities/category.entity';
-import { PRODUCT_PAGINATION_CONFIG } from './config/product-pagination.config';
+import { PRODUCT_PAGINATION } from 'src/common/config/pagination';
 
 @Injectable()
 export class ProductsService {
@@ -25,7 +25,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) { }
+  ) {}
 
   async create(createProductDto: CreateProductDto) {
     await this.validateCategoryExists(createProductDto.categoryId);
@@ -39,7 +39,7 @@ export class ProductsService {
   }
 
   async findAll(query: PaginateQuery) {
-    return paginate(query, this.productRepository, PRODUCT_PAGINATION_CONFIG);
+    return paginate(query, this.productRepository, PRODUCT_PAGINATION);
   }
 
   async findOne(id: string) {
@@ -86,7 +86,7 @@ export class ProductsService {
 
     try {
       return await this.productRepository.save(product);
-    } catch (error) {
+    } catch (error: unknown) {
       this.handleExceptions(error);
     }
   }
@@ -115,7 +115,10 @@ export class ProductsService {
 
   private handleExceptions(error: unknown): never {
     if (error instanceof QueryFailedError) {
-      const driverError = error.driverError as { code?: string; detail?: string };
+      const driverError = error.driverError as {
+        code?: string;
+        detail?: string;
+      };
 
       if (driverError.code === '23505') {
         this.logger.error(`Violation UNIQUE: ${driverError.detail}`);
