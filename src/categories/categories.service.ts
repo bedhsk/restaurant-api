@@ -27,7 +27,7 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) {}
+  ) { }
 
   async create(createCategoryDto: CreateCategoryDto) {
     try {
@@ -69,6 +69,19 @@ export class CategoriesService {
     }
 
     return category;
+  }
+
+  async findProductsByCategory(id: string) {
+    const category = await this.categoryRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with id "${id}" not found`);
+    }
+
+    return category.products;
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {

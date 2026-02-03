@@ -45,7 +45,7 @@ import { CATEGORY_PAGINATION } from 'src/common/config/pagination';
 @ApiBearerAuth()
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService) { }
 
   @Post()
   @Auth(Role.admin, Role.manager)
@@ -120,6 +120,12 @@ export class CategoriesController {
   })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoriesService.findOne(id);
+  }
+
+  @Get(':id/products')
+  @Auth(Role.admin, Role.manager, Role.waiter, Role.cashier)
+  findProductsByCategory(@Param('id', ParseUUIDPipe) id: string) {
+    return this.categoriesService.findProductsByCategory(id);
   }
 
   @Patch(':id')

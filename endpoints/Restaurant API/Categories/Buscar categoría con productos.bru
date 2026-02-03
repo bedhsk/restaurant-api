@@ -1,0 +1,20 @@
+meta {
+  name: Buscar categoría con productos
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/api/categories/{{id}}/products
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 0c48c6e6-d01f-4df7-a572-f4bda245f9b7
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
