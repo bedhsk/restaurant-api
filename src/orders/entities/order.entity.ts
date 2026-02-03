@@ -86,14 +86,14 @@ export class Order {
   })
   @ManyToOne(() => Table, (table) => table.orders)
   @JoinColumn({ name: 'table_id' })
-  table: Table;
+  table?: Table;
 
   @ApiProperty({
     description: 'ID of the table associated with this order',
     example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
   })
-  @Column('uuid', { name: 'table_id' })
-  tableId: string;
+  @Column('uuid', { name: 'table_id', nullable: true })
+  tableId?: string;
 
   @ApiProperty({
     description: 'User (waiter/staff) who created the order',

@@ -29,7 +29,7 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/doc', app, documentFactory, {
-    customCss: './common/swagger/swagger-dark.css',
+    customCss: './common/config/swagger/swagger-dark.css',
   });
 
   await app.listen(process.env.PORT ?? 3000);

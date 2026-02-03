@@ -43,8 +43,8 @@ export class CreateOrderDto {
     example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
   })
   @IsUUID()
-  @IsNotEmpty()
-  tableId: string;
+  @IsOptional()
+  tableId?: string;
 
   @ApiProperty({
     description: 'Additional notes for the entire order',

@@ -42,7 +42,7 @@ export class OrdersService {
     private readonly tableRepository: Repository<Table>,
 
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async create(createOrderDto: CreateOrderDto, user: User) {
     const { tableId, notes, items } = createOrderDto;
@@ -105,10 +105,12 @@ export class OrdersService {
       await this.tableRepository.save(table);
 
       // Use manager to query within transaction context
-      return manager.findOne(Order, {
-        where: { id: savedOrder.id },
-        relations: ['orderItems', 'orderItems.product', 'table', 'user'],
-      });
+      return {
+        id: savedOrder.id,
+        orderNumber: savedOrder.orderNumber,
+        message: 'Order created successfully',
+      };
+
     });
   }
 
