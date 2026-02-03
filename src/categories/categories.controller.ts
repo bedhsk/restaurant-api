@@ -30,6 +30,7 @@ import {
 
 import { Auth } from 'src/auth/decorators';
 import { Category } from './entities/category.entity';
+import { Product } from 'src/products/entities/product.entity';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -124,6 +125,29 @@ export class CategoriesController {
 
   @Get(':id/products')
   @Auth(Role.admin, Role.manager, Role.waiter, Role.cashier)
+  @ApiOperation({
+    summary: 'Get all products belonging to a category',
+    description: 'Roles: admin, manager, waiter, cashier',
+  })
+  @ApiOkResponse({
+    description: 'List of products belonging to the category.',
+    type: [Product],
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid UUID format.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Category not found.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token.',
+  })
+  @ApiForbiddenResponse({
+    description: 'User does not have the required role.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error.',
+  })
   findProductsByCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoriesService.findProductsByCategory(id);
   }
