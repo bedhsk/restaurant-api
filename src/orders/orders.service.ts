@@ -48,14 +48,17 @@ export class OrdersService {
     const { tableId, notes, items } = createOrderDto;
 
     // Validate table exists and get table
-    const table = await this.tableRepository.findOneBy({ id: tableId });
-    if (!table) {
-      throw new BadRequestException(`Table with id "${tableId}" not found`);
-    }
-    if (table.status !== TableStatus.AVAILABLE) {
-      throw new BadRequestException(
-        `Table is not available, please check table status`,
-      );
+    let table: Table | null = null;
+    if (tableId) {
+      table = await this.tableRepository.findOneBy({ id: tableId });
+      if (!table) {
+        throw new BadRequestException(`Table with id "${tableId}" not found`);
+      }
+      if (table.status !== TableStatus.AVAILABLE) {
+        throw new BadRequestException(
+          `Table is not available, please check table status`,
+        );
+      }
     }
 
     // Validate products and get their prices
@@ -100,9 +103,11 @@ export class OrdersService {
 
       await manager.save(OrderItem, orderItems);
 
-      // Change table status
-      table.status = TableStatus.OCCUPIED;
-      await this.tableRepository.save(table);
+      if (table) {
+        // Change table status
+        table.status = TableStatus.OCCUPIED;
+        await this.tableRepository.save(table);
+      }
 
       // Use manager to query within transaction context
       return {
@@ -110,7 +115,6 @@ export class OrdersService {
         orderNumber: savedOrder.orderNumber,
         message: 'Order created successfully',
       };
-
     });
   }
 
