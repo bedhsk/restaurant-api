@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { OrdersModule } from './orders/orders.module';
-import { OrderItemsModule } from './order-items/order-items.module';
+import { OrderProductsModule } from './order-products/order-products.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TablesModule } from './tables/tables.module';
@@ -28,7 +28,7 @@ import { AuthModule } from './auth/auth.module';
     TablesModule,
     OrdersModule,
     CategoriesModule,
-    OrderItemsModule,
+    OrderProductsModule,
     AuthModule,
   ],
   controllers: [AppController],

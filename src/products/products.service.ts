@@ -5,16 +5,16 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { QueryFailedError, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { In, QueryFailedError, Repository } from 'typeorm';
 
-import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
-import { Product } from './entities/product.entity';
-import { Category } from '../categories/entities/category.entity';
+import { CategoriesService } from 'src/categories/categories.service';
 import { PRODUCT_PAGINATION } from 'src/common/config/pagination';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
@@ -23,12 +23,12 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
+
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    await this.validateCategoryExists(createProductDto.categoryId);
+    await this.categoriesService.validate(createProductDto.categoryId);
 
     try {
       const product = this.productRepository.create(createProductDto);
@@ -72,7 +72,7 @@ export class ProductsService {
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     if (updateProductDto.categoryId) {
-      await this.validateCategoryExists(updateProductDto.categoryId);
+      await this.categoriesService.validate(updateProductDto.categoryId);
     }
 
     const product = await this.productRepository.preload({
@@ -90,6 +90,29 @@ export class ProductsService {
       this.handleExceptions(error);
     }
   }
+  
+  async validate(productIds: string[]): Promise<Map<string, Product>> {
+    const products = await this.productRepository.find({
+      where: { id: In(productIds) },
+    });
+
+    if (products.length !== productIds.length) {
+      const foundIds = products.map((p) => p.id);
+      const missingIds = productIds.filter((id) => !foundIds.includes(id));
+      throw new BadRequestException(
+        `Products not found: ${missingIds.join(', ')}`,
+      );
+    }
+
+    const unavailable = products.filter((p) => !p.isAvailable);
+    if (unavailable.length > 0) {
+      throw new BadRequestException(
+        `Products not available: ${unavailable.map((p) => p.name).join(', ')}`,
+      );
+    }
+
+    return new Map(products.map((p) => [p.id, p]));
+  }
 
   async remove(id: string) {
     const product = await this.productRepository.findOne({ where: { id } });
@@ -99,18 +122,6 @@ export class ProductsService {
     }
 
     return this.productRepository.remove(product);
-  }
-
-  private async validateCategoryExists(categoryId: string): Promise<void> {
-    const categoryExists = await this.categoryRepository.existsBy({
-      id: categoryId,
-    });
-
-    if (!categoryExists) {
-      throw new BadRequestException(
-        `Category with id "${categoryId}" not found`,
-      );
-    }
   }
 
   private handleExceptions(error: unknown): never {

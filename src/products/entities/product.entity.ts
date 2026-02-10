@@ -11,7 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Category } from '../../categories/entities/category.entity';
-import { OrderItem } from '../../order-items/entities/order-item.entity';
+import { OrderProduct } from '../../order-products/entities/order-product.entity';
 
 @Entity('products')
 export class Product {
@@ -88,8 +88,8 @@ export class Product {
   @Column({ name: 'category_id', type: 'uuid' })
   categoryId: string;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItems: OrderItem[];
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
+  orderProducts: OrderProduct[];
 
   // Metadata
   @ApiProperty({

@@ -11,7 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { OrderStatus } from '../enum/order-status.enum';
-import { OrderItem } from '../../order-items/entities/order-item.entity';
+import { OrderProduct } from '../../order-products/entities/order-product.entity';
 import { Table } from '../../tables/entities/table.entity';
 import { User } from 'src/auth/entities/user.entity';
 
@@ -108,12 +108,12 @@ export class Order {
   user: User;
 
   @ApiProperty({
-    description: 'Items included in this order',
-    type: () => OrderItem,
+    description: 'Products included in this order',
+    type: () => OrderProduct,
     isArray: true,
   })
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
-  orderItems: OrderItem[];
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, { cascade: true })
+  orderProducts: OrderProduct[];
 
   // Metadata
   @ApiProperty({

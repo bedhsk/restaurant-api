@@ -1,4 +1,4 @@
-export enum OrderItemStatus {
+export enum OrderProductStatus {
   PENDING = 'pending',
   PREPARING = 'preparing',
   SERVED = 'served',

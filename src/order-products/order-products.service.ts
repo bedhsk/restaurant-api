@@ -1,95 +1,78 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DatabaseError } from 'pg';
+import { Repository } from 'typeorm';
 
-import { OrderItem } from './entities/order-item.entity';
-import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 import { OrdersService } from '../orders/orders.service';
-import { OrderItemStatus } from './enum/order-item-status.enum';
+import { UpdateOrderProductDto } from './dto/update-order-product.dto';
+import { OrderProduct } from './entities/order-product.entity';
+import { OrderProductStatus } from './enum/order-product-status.enum';
 
 @Injectable()
-export class OrderItemsService {
-  private readonly logger = new Logger(OrderItemsService.name);
+export class OrderProductsService {
+  private readonly logger = new Logger(OrderProductsService.name);
 
   constructor(
-    @InjectRepository(OrderItem)
-    private readonly orderItemRepository: Repository<OrderItem>,
-    @Inject(forwardRef(() => OrdersService))
+    @InjectRepository(OrderProduct)
+    private readonly orderProductRepository: Repository<OrderProduct>,
     private readonly ordersService: OrdersService,
   ) {}
 
   async findOne(id: string) {
-    const orderItem = await this.orderItemRepository.findOne({
+    const orderProduct = await this.orderProductRepository.findOne({
       where: { id },
-      relations: ['product'],
-      select: {
-        id: true,
-        quantity: true,
-        unitPrice: true,
-        subtotal: true,
-        notes: true,
-        status: true,
-        orderId: true,
-        productId: true,
-        createdAt: true,
-        updatedAt: true,
-        product: { id: true, name: true, imageUrl: true },
-      },
     });
 
-    if (!orderItem) {
-      throw new NotFoundException(`Order item with id "${id}" not found`);
+    if (!orderProduct) {
+      throw new NotFoundException(`Order product with id "${id}" not found`);
     }
 
-    return orderItem;
+    return orderProduct;
   }
 
-  async update(id: string, updateOrderItemDto: UpdateOrderItemDto) {
-    const orderItem = await this.orderItemRepository.findOne({
+  async update(id: string, updateOrderProductDto: UpdateOrderProductDto) {
+    const orderProduct = await this.orderProductRepository.findOne({
       where: { id },
       relations: ['order'],
     });
 
-    if (!orderItem) {
-      throw new NotFoundException(`Order item with id "${id}" not found`);
+    if (!orderProduct) {
+      throw new NotFoundException(`Order product with id "${id}" not found`);
     }
 
     // Check if the order is still open
-    if (orderItem.order.closedAt) {
+    if (orderProduct.order.closedAt) {
       throw new BadRequestException('Cannot update items in a closed order');
     }
 
     // If quantity is being updated, recalculate subtotal
-    if (updateOrderItemDto.quantity) {
-      orderItem.quantity = updateOrderItemDto.quantity;
-      orderItem.subtotal = Number(
-        (orderItem.unitPrice * updateOrderItemDto.quantity).toFixed(2),
+    if (updateOrderProductDto.quantity) {
+      orderProduct.quantity = updateOrderProductDto.quantity;
+      orderProduct.subtotal = Number(
+        (orderProduct.unitPrice * updateOrderProductDto.quantity).toFixed(2),
       );
     }
 
-    if (updateOrderItemDto.notes !== undefined) {
-      orderItem.notes = updateOrderItemDto.notes;
+    if (updateOrderProductDto.notes !== undefined) {
+      orderProduct.notes = updateOrderProductDto.notes;
     }
 
-    if (updateOrderItemDto.status) {
-      orderItem.status = updateOrderItemDto.status;
+    if (updateOrderProductDto.status) {
+      orderProduct.status = updateOrderProductDto.status;
     }
 
     try {
-      const savedItem = await this.orderItemRepository.save(orderItem);
+      const savedItem = await this.orderProductRepository.save(orderProduct);
 
       // Recalculate order totals if quantity changed
-      if (updateOrderItemDto.quantity) {
-        await this.ordersService.recalculateOrderTotals(orderItem.orderId);
+      if (updateOrderProductDto.quantity) {
+        await this.ordersService.recalculateOrderTotals(orderProduct.orderId);
       }
 
       return savedItem;
@@ -99,38 +82,38 @@ export class OrderItemsService {
   }
 
   async remove(id: string) {
-    const orderItem = await this.orderItemRepository.findOne({
+    const orderProduct = await this.orderProductRepository.findOne({
       where: { id },
       relations: ['order'],
     });
 
-    if (!orderItem) {
-      throw new NotFoundException(`Order item with id "${id}" not found`);
+    if (!orderProduct) {
+      throw new NotFoundException(`Order product with id "${id}" not found`);
     }
 
     // Check if the order is still open
-    if (orderItem.order.closedAt) {
+    if (orderProduct.order.closedAt) {
       throw new BadRequestException('Cannot remove items from a closed order');
     }
 
     // Don't allow removing items that are already being prepared or served
     if (
-      orderItem.status === OrderItemStatus.PREPARING ||
-      orderItem.status === OrderItemStatus.SERVED
+      orderProduct.status === OrderProductStatus.PREPARING ||
+      orderProduct.status === OrderProductStatus.SERVED
     ) {
       throw new BadRequestException(
         'Cannot remove items that are being prepared or already served',
       );
     }
 
-    const orderId = orderItem.orderId;
+    const orderId = orderProduct.orderId;
 
-    await this.orderItemRepository.remove(orderItem);
+    await this.orderProductRepository.remove(orderProduct);
 
     // Recalculate order totals
     await this.ordersService.recalculateOrderTotals(orderId);
 
-    return { message: 'Order item removed successfully' };
+    return { message: 'Order product removed successfully' };
   }
 
   private handleExceptions(error: unknown): never {
@@ -138,7 +121,7 @@ export class OrderItemsService {
       if (error.code === '23505') {
         this.logger.error(`Violation UNIQUE: ${error.detail}`);
         throw new BadRequestException(
-          'An order item with this information already exists',
+          'An order product with this information already exists',
         );
       }
 

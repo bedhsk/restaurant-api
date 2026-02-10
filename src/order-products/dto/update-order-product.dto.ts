@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { OrderItemStatus } from '../enum/order-item-status.enum';
+import { OrderProductStatus } from '../enum/order-product-status.enum';
 
-export class UpdateOrderItemDto {
+export class UpdateOrderProductDto {
   @ApiProperty({
     description: 'Updated quantity of the product',
     example: 3,
@@ -24,12 +24,12 @@ export class UpdateOrderItemDto {
   notes?: string;
 
   @ApiProperty({
-    description: 'Updated status of the order item',
-    enum: OrderItemStatus,
-    example: OrderItemStatus.PREPARING,
+    description: 'Updated status of the order product',
+    enum: OrderProductStatus,
+    example: OrderProductStatus.PREPARING,
     required: false,
   })
-  @IsEnum(OrderItemStatus)
+  @IsEnum(OrderProductStatus)
   @IsOptional()
-  status?: OrderItemStatus;
+  status?: OrderProductStatus;
 }

@@ -5,16 +5,17 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { DatabaseError } from 'pg';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { DatabaseError } from 'pg';
+import { Repository } from 'typeorm';
 
-import { UpdateTableDto } from './dto/update-table.dto';
 import { CreateTableDto } from './dto/create-table.dto';
+import { UpdateTableDto } from './dto/update-table.dto';
 
-import { Table } from './entities/table.entity';
 import { TABLE_PAGINATION } from 'src/common/config/pagination';
+import { Table } from './entities/table.entity';
+import { TableStatus } from './enums/table-status.enum';
 
 @Injectable()
 export class TablesService {
@@ -45,6 +46,18 @@ export class TablesService {
 
     if (!table) {
       throw new NotFoundException(`Table with id "${id}" not found`);
+    }
+
+    return table;
+  }
+
+  async validateAvailable(id: string): Promise<Table> {
+    const table = await this.findOne(id);
+
+    if (table.status !== TableStatus.AVAILABLE) {
+      throw new BadRequestException(
+        'Table is not available, please check table status',
+      );
     }
 
     return table;

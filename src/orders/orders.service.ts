@@ -6,24 +6,25 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
-import { DatabaseError } from 'pg';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { DatabaseError } from 'pg';
+import { DataSource, Repository } from 'typeorm';
 
-import { Order } from './entities/order.entity';
-import { OrderItem } from '../order-items/entities/order-item.entity';
+import { OrderProduct } from '../order-products/entities/order-product.entity';
 import { Product } from '../products/entities/product.entity';
-import { Table } from '../tables/entities/table.entity';
+import { Order } from './entities/order.entity';
 
-import { CreateOrderDto, OrderItemInputDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddItemsDto } from './dto/add-items.dto';
+import { CreateOrderDto, OrderProductInputDto } from './dto/create-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
-import { OrderStatus } from './enum/order-status.enum';
-import { TableStatus } from 'src/tables/enums/table-status.enum';
 import { User } from 'src/auth/entities/user.entity';
 import { ORDER_PAGINATION } from 'src/common/config/pagination';
+import { ProductsService } from 'src/products/products.service';
+import { TableStatus } from 'src/tables/enums/table-status.enum';
+import { TablesService } from 'src/tables/tables.service';
+import { OrderStatus } from './enum/order-status.enum';
 
 const TAX_RATE = 0.12; // 12% IVA
 
@@ -34,12 +35,9 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(OrderItem)
-    private readonly orderItemRepository: Repository<OrderItem>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-    @InjectRepository(Table)
-    private readonly tableRepository: Repository<Table>,
+
+    private readonly productsService: ProductsService,
+    private readonly tablesService: TablesService,
 
     private readonly dataSource: DataSource,
   ) { }
@@ -47,32 +45,23 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto, user: User) {
     const { tableId, notes, items } = createOrderDto;
 
-    // Validate table exists and get table
-    let table: Table | null = null;
+    // Validate table exists and is available
     if (tableId) {
-      table = await this.tableRepository.findOneBy({ id: tableId });
-      if (!table) {
-        throw new BadRequestException(`Table with id "${tableId}" not found`);
-      }
-      if (table.status !== TableStatus.AVAILABLE) {
-        throw new BadRequestException(
-          `Table is not available, please check table status`,
-        );
-      }
+      await this.tablesService.validateAvailable(tableId);
     }
 
     // Validate products and get their prices
     const productIds = items.map((item) => item.productId);
-    const products = await this.validateProductsExist(productIds);
+    const products = await this.productsService.validate(productIds);
 
     // Use transaction to ensure atomicity
     return this.dataSource.transaction(async (manager) => {
       // Generate order number
       const orderNumber = await this.generateOrderNumber();
 
-      // Calculate order items with prices
-      const orderItemsData = this.calculateOrderItems(items, products);
-      const subtotal = orderItemsData.reduce(
+      // Calculate order products with prices
+      const orderProductsData = this.calculateOrderProducts(items, products);
+      const subtotal = orderProductsData.reduce(
         (sum, item) => sum + item.subtotal,
         0,
       );
@@ -93,20 +82,18 @@ export class OrdersService {
 
       const savedOrder = await manager.save(Order, order);
 
-      // Create order items
-      const orderItems = orderItemsData.map((itemData) =>
-        manager.create(OrderItem, {
+      // Create order products
+      const orderProducts = orderProductsData.map((itemData) =>
+        manager.create(OrderProduct, {
           ...itemData,
           orderId: savedOrder.id,
         }),
       );
 
-      await manager.save(OrderItem, orderItems);
+      await manager.save(OrderProduct, orderProducts);
 
-      if (table) {
-        // Change table status
-        table.status = TableStatus.OCCUPIED;
-        await this.tableRepository.save(table);
+      if (tableId) {
+        await this.tablesService.update(tableId, { status: TableStatus.OCCUPIED });
       }
 
       // Use manager to query within transaction context
@@ -125,31 +112,7 @@ export class OrdersService {
   async findOne(id: string) {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['orderItems', 'orderItems.product', 'table', 'user'],
-      select: {
-        id: true,
-        orderNumber: true,
-        status: true,
-        subtotal: true,
-        tax: true,
-        total: true,
-        notes: true,
-        closedAt: true,
-        createdAt: true,
-        updatedAt: true,
-        table: { id: true, tableNumber: true },
-        user: { id: true, name: true },
-        orderItems: {
-          id: true,
-          quantity: true,
-          unitPrice: true,
-          subtotal: true,
-          notes: true,
-          status: true,
-          productId: true,
-          product: { id: true, name: true, imageUrl: true },
-        },
-      },
+      relations: ['orderProducts', 'orderProducts.product', 'table', 'user'],
     });
 
     if (!order) {
@@ -203,7 +166,7 @@ export class OrdersService {
   async addItems(id: string, addItemsDto: AddItemsDto) {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['orderItems'],
+      relations: ['orderProducts'],
     });
 
     if (!order) {
@@ -219,27 +182,27 @@ export class OrdersService {
 
     // Validate products
     const productIds = addItemsDto.items.map((item) => item.productId);
-    const products = await this.validateProductsExist(productIds);
+    const products = await this.productsService.validate(productIds);
 
     return this.dataSource.transaction(async (manager) => {
-      // Calculate new items
-      const newItemsData = this.calculateOrderItems(
+      // Calculate new products
+      const newProductsData = this.calculateOrderProducts(
         addItemsDto.items,
         products,
       );
 
-      // Create order items
-      const newItems = newItemsData.map((itemData) =>
-        manager.create(OrderItem, {
+      // Create order products
+      const newProducts = newProductsData.map((itemData) =>
+        manager.create(OrderProduct, {
           ...itemData,
           orderId: order.id,
         }),
       );
 
-      await manager.save(OrderItem, newItems);
+      await manager.save(OrderProduct, newProducts);
 
       // Recalculate order totals
-      const allItems = await manager.find(OrderItem, {
+      const allItems = await manager.find(OrderProduct, {
         where: { orderId: id },
       });
       const subtotal = allItems.reduce(
@@ -254,7 +217,7 @@ export class OrdersService {
       // Use manager to query within transaction context
       return manager.findOne(Order, {
         where: { id },
-        relations: ['orderItems', 'orderItems.product', 'table', 'user'],
+        relations: ['orderProducts', 'orderProducts.product', 'table', 'user'],
       });
     });
   }
@@ -270,8 +233,14 @@ export class OrdersService {
   }
 
   async recalculateOrderTotals(orderId: string): Promise<void> {
-    const items = await this.orderItemRepository.find({ where: { orderId } });
-    const subtotal = items.reduce(
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['orderProducts'],
+    });
+
+    if (!order) return;
+
+    const subtotal = order.orderProducts.reduce(
       (sum, item) => sum + Number(item.subtotal),
       0,
     );
@@ -281,8 +250,8 @@ export class OrdersService {
     await this.orderRepository.update(orderId, { subtotal, tax, total });
   }
 
-  private calculateOrderItems(
-    items: OrderItemInputDto[],
+  private calculateOrderProducts(
+    items: OrderProductInputDto[],
     products: Map<string, Product>,
   ): Array<{
     productId: string;
@@ -323,31 +292,6 @@ export class OrdersService {
     }
 
     return `ORD-${dateStr}-${sequence.toString().padStart(3, '0')}`;
-  }
-
-  private async validateProductsExist(
-    productIds: string[],
-  ): Promise<Map<string, Product>> {
-    const products = await this.productRepository.find({
-      where: { id: In(productIds) },
-    });
-
-    if (products.length !== productIds.length) {
-      const foundIds = products.map((p) => p.id);
-      const missingIds = productIds.filter((id) => !foundIds.includes(id));
-      throw new BadRequestException(
-        `Products not found: ${missingIds.join(', ')}`,
-      );
-    }
-
-    const unavailable = products.filter((p) => !p.isAvailable);
-    if (unavailable.length > 0) {
-      throw new BadRequestException(
-        `Products not available: ${unavailable.map((p) => p.name).join(', ')}`,
-      );
-    }
-
-    return new Map(products.map((p) => [p.id, p]));
   }
 
   private handleExceptions(error: unknown): never {

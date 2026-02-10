@@ -5,20 +5,16 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { DatabaseError } from 'pg';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { DatabaseError } from 'pg';
+import { Repository } from 'typeorm';
 
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
-import { Category } from './entities/category.entity';
 import { CATEGORY_PAGINATION } from 'src/common/config/pagination';
-
-interface MaxOrderResult {
-  max: number | null;
-}
+import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoriesService {
@@ -34,7 +30,7 @@ export class CategoriesService {
       const nextOrder = await this.categoryRepository
         .createQueryBuilder('category')
         .select('MAX(category.displayOrder)', 'max')
-        .getRawOne<MaxOrderResult>();
+        .getRawOne();
 
       const category = this.categoryRepository.create({
         ...createCategoryDto,
@@ -53,15 +49,15 @@ export class CategoriesService {
   async findOne(id: string) {
     const category = await this.categoryRepository.findOne({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        displayOrder: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      select: [
+        'id',
+        'name',
+        'description',
+        'displayOrder',
+        'isActive',
+        'createdAt',
+        'updatedAt'
+      ],
     });
 
     if (!category) {
@@ -120,6 +116,14 @@ export class CategoriesService {
       .execute();
 
     return category;
+  }
+
+  async validate(id: string) {
+    const exists = await this.categoryRepository.existsBy({ id });
+
+    if (!exists) {
+      throw new BadRequestException(`Category with id "${id}" not found`);
+    }
   }
 
   private handleExceptions(error: unknown): never {

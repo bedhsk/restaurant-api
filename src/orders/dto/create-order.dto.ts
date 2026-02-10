@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class OrderItemInputDto {
+class OrderProductInputDto {
   @ApiProperty({
     description: 'ID of the product to order',
     example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
@@ -57,14 +57,14 @@ export class CreateOrderDto {
 
   @ApiProperty({
     description: 'List of items to include in the order',
-    type: [OrderItemInputDto],
+    type: [OrderProductInputDto],
     minItems: 1,
   })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => OrderItemInputDto)
-  items: OrderItemInputDto[];
+  @Type(() => OrderProductInputDto)
+  items: OrderProductInputDto[];
 }
 
-export { OrderItemInputDto };
+export { OrderProductInputDto };

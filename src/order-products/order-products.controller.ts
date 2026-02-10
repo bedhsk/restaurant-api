@@ -20,36 +20,36 @@ import {
 } from '@nestjs/swagger';
 
 import { Auth } from 'src/auth/decorators';
-import { OrderItem } from './entities/order-item.entity';
-import { OrderItemsService } from './order-items.service';
-import { UpdateOrderItemDto } from './dto/update-order-item.dto';
+import { OrderProduct } from './entities/order-product.entity';
+import { OrderProductsService } from './order-products.service';
+import { UpdateOrderProductDto } from './dto/update-order-product.dto';
 
 /**
- * Order Items Controller
- * Manages individual items within orders.
+ * Order Products Controller
+ * Manages individual products within orders.
  * All endpoints require authentication (any authenticated user).
  */
-@ApiTags('Order Items')
+@ApiTags('Order Products')
 @ApiBearerAuth()
-@Controller('order-items')
-export class OrderItemsController {
-  constructor(private readonly orderItemsService: OrderItemsService) {}
+@Controller('order-products')
+export class OrderProductsController {
+  constructor(private readonly orderProductsService: OrderProductsService) {}
 
   @Patch(':id')
   @Auth()
   @ApiOperation({
-    summary: 'Update an order item (quantity, notes, or status)',
+    summary: 'Update an order product (quantity, notes, or status)',
     description: 'Roles: Any authenticated user',
   })
   @ApiOkResponse({
-    description: 'The order item has been successfully updated.',
-    type: OrderItem,
+    description: 'The order product has been successfully updated.',
+    type: OrderProduct,
   })
   @ApiBadRequestResponse({
     description: 'Invalid input data, invalid UUID format, or order is closed.',
   })
   @ApiNotFoundResponse({
-    description: 'Order item not found.',
+    description: 'Order product not found.',
   })
   @ApiUnauthorizedResponse({
     description: 'Invalid or expired JWT token.',
@@ -59,27 +59,27 @@ export class OrderItemsController {
   })
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateOrderItemDto: UpdateOrderItemDto,
+    @Body() updateOrderProductDto: UpdateOrderProductDto,
   ) {
-    return this.orderItemsService.update(id, updateOrderItemDto);
+    return this.orderProductsService.update(id, updateOrderProductDto);
   }
 
   @Delete(':id')
   @Auth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Remove an order item',
+    summary: 'Remove an order product',
     description: 'Roles: Any authenticated user',
   })
   @ApiOkResponse({
-    description: 'The order item has been successfully removed.',
+    description: 'The order product has been successfully removed.',
   })
   @ApiBadRequestResponse({
     description:
       'Invalid UUID format, order is closed, or item is being prepared/served.',
   })
   @ApiNotFoundResponse({
-    description: 'Order item not found.',
+    description: 'Order product not found.',
   })
   @ApiUnauthorizedResponse({
     description: 'Invalid or expired JWT token.',
@@ -88,6 +88,6 @@ export class OrderItemsController {
     description: 'Internal server error.',
   })
   remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.orderItemsService.remove(id);
+    return this.orderProductsService.remove(id);
   }
 }

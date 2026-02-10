@@ -11,12 +11,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Order } from '../../orders/entities/order.entity';
 import { Product } from '../../products/entities/product.entity';
-import { OrderItemStatus } from '../enum/order-item-status.enum';
+import { OrderProductStatus } from '../enum/order-product-status.enum';
 
-@Entity('order_items')
-export class OrderItem {
+@Entity('order_products')
+export class OrderProduct {
   @ApiProperty({
-    description: 'Unique identifier for the order item',
+    description: 'Unique identifier for the order product',
     example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
   })
   @PrimaryGeneratedColumn('uuid')
@@ -54,25 +54,25 @@ export class OrderItem {
   notes: string;
 
   @ApiProperty({
-    description: 'Current status of the order item',
-    enum: OrderItemStatus,
-    example: OrderItemStatus.PENDING,
-    default: OrderItemStatus.PENDING,
+    description: 'Current status of the order product',
+    enum: OrderProductStatus,
+    example: OrderProductStatus.PENDING,
+    default: OrderProductStatus.PENDING,
   })
-  @Column('varchar', { length: 50, default: OrderItemStatus.PENDING })
-  status: OrderItemStatus;
+  @Column('varchar', { length: 50, default: OrderProductStatus.PENDING })
+  status: OrderProductStatus;
 
   // Relations
   @ApiProperty({
-    description: 'Order to which this item belongs',
+    description: 'Order to which this product belongs',
     type: () => Order,
   })
-  @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (order) => order.orderProducts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
   @ApiProperty({
-    description: 'ID of the order to which this item belongs',
+    description: 'ID of the order to which this product belongs',
     example: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
   })
   @Column('uuid', { name: 'order_id' })
@@ -82,7 +82,7 @@ export class OrderItem {
     description: 'Product ordered',
     type: () => Product,
   })
-  @ManyToOne(() => Product, (product) => product.orderItems)
+  @ManyToOne(() => Product, (product) => product.orderProducts)
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
