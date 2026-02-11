@@ -14,12 +14,10 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
   Paginate,
@@ -37,11 +35,6 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { OrdersService } from './orders.service';
 
-/**
- * Orders Controller
- * Manages customer orders including creation, status updates, and item management.
- * All endpoints require authentication (any authenticated user).
- */
 @ApiTags('Orders')
 @ApiBearerAuth()
 @Controller('orders')
@@ -50,93 +43,35 @@ export class OrdersController {
 
   @Post()
   @Auth()
-  @ApiOperation({
-    summary: 'Create a new order with items',
-    description: 'Roles: Any authenticated user',
-  })
-  @ApiCreatedResponse({
-    description: 'The order has been successfully created with all items.',
-    type: Order,
-  })
-  @ApiBadRequestResponse({
-    description:
-      'Invalid input data, table/user/products not found, or products unavailable.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Create a new order with products', description: 'Roles: Any authenticated user' })
+  @ApiCreatedResponse({ description: 'Order created.', type: Order })
+  @ApiBadRequestResponse({ description: 'Invalid input data, table/products not found, or products unavailable.' })
   create(@Body() createOrderDto: CreateOrderDto, @GetUser() user: User) {
     return this.ordersService.create(createOrderDto, user);
   }
 
   @Get()
   @Auth()
-  @ApiOperation({
-    summary: 'List orders with pagination, filtering, and search',
-    description: 'Roles: Any authenticated user',
-  })
+  @ApiOperation({ summary: 'List orders with pagination, filtering, and search', description: 'Roles: Any authenticated user' })
   @PaginatedSwaggerDocs(Order, ORDER_PAGINATION)
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
   findAll(@Paginate() query: PaginateQuery) {
     return this.ordersService.findAll(query);
   }
 
   @Get(':id')
   @Auth()
-  @ApiOperation({
-    summary: 'Get an order by its ID with all items',
-    description: 'Roles: Any authenticated user',
-  })
-  @ApiOkResponse({
-    description: 'The order has been successfully retrieved with items.',
-    type: Order,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid UUID format.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Order not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Get an order by ID with all products', description: 'Roles: Any authenticated user' })
+  @ApiOkResponse({ description: 'Order found.', type: Order })
+  @ApiNotFoundResponse({ description: 'Order not found.' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.ordersService.findOne(id);
   }
 
   @Patch(':id')
   @Auth()
-  @ApiOperation({
-    summary: 'Update order notes',
-    description: 'Roles: Any authenticated user',
-  })
-  @ApiOkResponse({
-    description: 'The order has been successfully updated.',
-    type: Order,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid input data or invalid UUID format.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Order not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Update order notes', description: 'Roles: Any authenticated user' })
+  @ApiOkResponse({ description: 'Order updated.', type: Order })
+  @ApiNotFoundResponse({ description: 'Order not found.' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateOrderDto: UpdateOrderDto,
@@ -146,26 +81,10 @@ export class OrdersController {
 
   @Patch(':id/status')
   @Auth()
-  @ApiOperation({
-    summary: 'Update order status',
-    description: 'Roles: Any authenticated user',
-  })
-  @ApiOkResponse({
-    description: 'The order status has been successfully updated.',
-    type: Order,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid status value or invalid UUID format.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Order not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Update order status', description: 'Roles: Any authenticated user' })
+  @ApiOkResponse({ description: 'Order status updated.', type: Order })
+  @ApiBadRequestResponse({ description: 'Invalid status value.' })
+  @ApiNotFoundResponse({ description: 'Order not found.' })
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateStatusDto: UpdateOrderStatusDto,
@@ -175,27 +94,10 @@ export class OrdersController {
 
   @Post(':id/items')
   @Auth()
-  @ApiOperation({
-    summary: 'Add items to an existing order',
-    description: 'Roles: Any authenticated user',
-  })
-  @ApiCreatedResponse({
-    description: 'Items have been successfully added to the order.',
-    type: Order,
-  })
-  @ApiBadRequestResponse({
-    description:
-      'Invalid input data, order is closed, or products not found/unavailable.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Order not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Add products to an existing order', description: 'Roles: Any authenticated user' })
+  @ApiCreatedResponse({ description: 'Products added to order.', type: Order })
+  @ApiBadRequestResponse({ description: 'Order is closed or products not found/unavailable.' })
+  @ApiNotFoundResponse({ description: 'Order not found.' })
   addItems(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() addItemsDto: AddItemsDto,
@@ -206,26 +108,9 @@ export class OrdersController {
   @Delete(':id')
   @Auth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Delete an order by its ID',
-    description: 'Roles: Any authenticated user',
-  })
-  @ApiOkResponse({
-    description: 'The order has been successfully deleted.',
-    type: Order,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid UUID format.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Order not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Delete an order by ID', description: 'Roles: Any authenticated user' })
+  @ApiOkResponse({ description: 'Order deleted.', type: Order })
+  @ApiNotFoundResponse({ description: 'Order not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.ordersService.remove(id);
   }

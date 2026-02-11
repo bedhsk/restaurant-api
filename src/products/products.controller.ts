@@ -14,13 +14,10 @@ import {
   ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
-  ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiBearerAuth,
-  ApiUnauthorizedResponse,
-  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import {
   Paginate,
@@ -36,11 +33,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PRODUCT_PAGINATION } from 'src/common/config/pagination';
 
-/**
- * Products Controller
- * Manages restaurant menu products (food items, beverages, etc.)
- * All endpoints require authentication.
- */
 @ApiTags('Products')
 @ApiBearerAuth()
 @Controller('products')
@@ -49,105 +41,36 @@ export class ProductsController {
 
   @Post()
   @Auth(Role.manager)
-  @ApiOperation({
-    summary: 'Create a new product',
-    description: 'Roles: manager',
-  })
-  @ApiCreatedResponse({
-    description: 'The product has been successfully created.',
-    type: Product,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid input data or category does not exist.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiForbiddenResponse({
-    description: 'User does not have the required role (manager).',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Create a new product', description: 'Roles: manager' })
+  @ApiCreatedResponse({ description: 'Product created.', type: Product })
+  @ApiBadRequestResponse({ description: 'Invalid input data or category does not exist.' })
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
   @Get()
   @Auth(Role.manager, Role.cashier)
-  @ApiOperation({
-    summary: 'List products with pagination, filtering, and search',
-    description: 'Roles: manager, cashier',
-  })
+  @ApiOperation({ summary: 'List products with pagination, filtering, and search', description: 'Roles: manager, cashier' })
   @PaginatedSwaggerDocs(Product, PRODUCT_PAGINATION)
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiForbiddenResponse({
-    description: 'User does not have the required role (manager, cashier).',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
   findAll(@Paginate() query: PaginateQuery) {
     return this.productsService.findAll(query);
   }
 
   @Get(':id')
   @Auth(Role.manager, Role.cashier)
-  @ApiOperation({
-    summary: 'Get a product by its ID',
-    description: 'Roles: manager, cashier',
-  })
-  @ApiOkResponse({
-    description: 'The product has been successfully retrieved.',
-    type: Product,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid UUID format.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Product not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiForbiddenResponse({
-    description: 'User does not have the required role (manager, cashier).',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Get a product by ID', description: 'Roles: manager, cashier' })
+  @ApiOkResponse({ description: 'Product found.', type: Product })
+  @ApiNotFoundResponse({ description: 'Product not found.' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
   @Auth(Role.manager)
-  @ApiOperation({
-    summary: 'Update a product by its ID',
-    description: 'Roles: manager',
-  })
-  @ApiOkResponse({
-    description: 'The product has been successfully updated.',
-    type: Product,
-  })
-  @ApiBadRequestResponse({
-    description:
-      'Invalid input data, invalid UUID format, or category does not exist.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Product not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiForbiddenResponse({
-    description: 'User does not have the required role (manager).',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Update a product by ID', description: 'Roles: manager' })
+  @ApiOkResponse({ description: 'Product updated.', type: Product })
+  @ApiBadRequestResponse({ description: 'Invalid input data or category does not exist.' })
+  @ApiNotFoundResponse({ description: 'Product not found.' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -158,29 +81,9 @@ export class ProductsController {
   @Delete(':id')
   @Auth(Role.manager, Role.waiter)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Delete a product by its ID',
-    description: 'Roles: manager, waiter',
-  })
-  @ApiOkResponse({
-    description: 'The product has been successfully deleted.',
-    type: Product,
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid UUID format.',
-  })
-  @ApiNotFoundResponse({
-    description: 'Product not found.',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired JWT token.',
-  })
-  @ApiForbiddenResponse({
-    description: 'User does not have the required role (manager, waiter).',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error.',
-  })
+  @ApiOperation({ summary: 'Delete a product by ID', description: 'Roles: manager, waiter' })
+  @ApiOkResponse({ description: 'Product deleted.', type: Product })
+  @ApiNotFoundResponse({ description: 'Product not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
   }
