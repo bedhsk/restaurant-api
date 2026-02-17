@@ -1,10 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsEmail,
+  IsEnum,
+  IsOptional,
   IsString,
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
+import { ValidRoles } from '../interfaces/valid-roles';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -37,4 +41,15 @@ export class CreateUserDto {
     minSymbols: 0,
   })
   password: string;
+
+  @ApiPropertyOptional({
+    description: 'Roles assigned to the user',
+    example: ['manager'],
+    enum: ValidRoles,
+    isArray: true,
+  })
+  @IsArray()
+  @IsEnum(ValidRoles, { each: true })
+  @IsOptional()
+  roles?: ValidRoles[];
 }
