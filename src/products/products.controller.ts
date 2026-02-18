@@ -40,7 +40,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({ summary: 'Create a new product', description: 'Roles: manager' })
   @ApiCreatedResponse({ description: 'Product created.', type: Product })
   @ApiBadRequestResponse({ description: 'Invalid input data or category does not exist.' })
@@ -49,7 +49,7 @@ export class ProductsController {
   }
 
   @Get()
-  @Auth(Role.manager, Role.cashier)
+  @Auth(Role.admin, Role.manager, Role.cashier)
   @ApiOperation({ summary: 'List products with pagination, filtering, and search', description: 'Roles: manager, cashier' })
   @PaginatedSwaggerDocs(Product, PRODUCT_PAGINATION)
   findAll(@Paginate() query: PaginateQuery) {
@@ -57,7 +57,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @Auth(Role.manager, Role.cashier)
+  @Auth(Role.admin, Role.manager, Role.cashier)
   @ApiOperation({ summary: 'Get a product by ID', description: 'Roles: manager, cashier' })
   @ApiOkResponse({ description: 'Product found.', type: Product })
   @ApiNotFoundResponse({ description: 'Product not found.' })
@@ -66,7 +66,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  @Auth(Role.manager)
+  @Auth(Role.admin, Role.manager)
   @ApiOperation({ summary: 'Update a product by ID', description: 'Roles: manager' })
   @ApiOkResponse({ description: 'Product updated.', type: Product })
   @ApiBadRequestResponse({ description: 'Invalid input data or category does not exist.' })
@@ -79,7 +79,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @Auth(Role.manager, Role.waiter)
+  @Auth(Role.admin, Role.manager, Role.waiter)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a product by ID', description: 'Roles: manager, waiter' })
   @ApiOkResponse({ description: 'Product deleted.', type: Product })
