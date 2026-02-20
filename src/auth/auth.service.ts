@@ -1,13 +1,11 @@
 import {
-  BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { compareSync, hashSync } from 'bcrypt';
 
 import { User } from './entities/user.entity';
@@ -29,24 +27,20 @@ export class AuthService {
   ) { }
 
   async create(createUserDto: CreateUserDto) {
-    try {
-      const { email, password, ...userData } = createUserDto;
-      const user = this.userRepository.create({
-        ...userData,
-        email: email.toLowerCase().trim(),
-        password: hashSync(password, 10),
-      });
-      await this.userRepository.save(user);
-      return {
-        ...this.sanitizeUser(user),
-        token: this.getJwtToken({
-          id: user.id,
-          tokenVersion: user.tokenVersion,
-        }),
-      };
-    } catch (error) {
-      this.handleExceptions(error);
-    }
+    const { email, password, ...userData } = createUserDto;
+    const user = this.userRepository.create({
+      ...userData,
+      email: email.toLowerCase().trim(),
+      password: hashSync(password, 10),
+    });
+    await this.userRepository.save(user);
+    return {
+      ...this.sanitizeUser(user),
+      token: this.getJwtToken({
+        id: user.id,
+        tokenVersion: user.tokenVersion,
+      }),
+    };
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -90,11 +84,7 @@ export class AuthService {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    try {
-      return await this.userRepository.save(user);
-    } catch (error: unknown) {
-      this.handleExceptions(error);
-    }
+    return await this.userRepository.save(user);
   }
 
   async softDeleteUser(id: string) {
@@ -130,42 +120,5 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  private handleExceptions(error: unknown): never {
-    if (error instanceof QueryFailedError) {
-      const driverError = error.driverError as {
-        code?: string;
-        detail?: string;
-      };
 
-      if (driverError.code === '23505') {
-        this.logger.error(`Violation UNIQUE: ${driverError.detail}`);
-        throw new BadRequestException('A user with this email already exists');
-      }
-
-      if (driverError.code === '23503') {
-        this.logger.error(`Foreign key violation: ${driverError.detail}`);
-        throw new BadRequestException('Invalid reference to related entity');
-      }
-
-      if (driverError.code === '23502') {
-        this.logger.error(`Not null violation: ${driverError.detail}`);
-        throw new BadRequestException('Required field is missing');
-      }
-
-      if (driverError.code === '22001') {
-        this.logger.error(`String too long: ${driverError.detail}`);
-        throw new BadRequestException('Input value exceeds maximum length');
-      }
-
-      if (driverError.code === '22P02') {
-        this.logger.error(`Invalid input syntax: ${driverError.detail}`);
-        throw new BadRequestException('Invalid input format');
-      }
-    }
-
-    this.logger.error(error);
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
-  }
 }

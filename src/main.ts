@@ -4,10 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { updateGlobalConfig } from 'nestjs-paginate';
 
+import { DatabaseExceptionFilter } from './common/filters/database-exception.filter';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.setGlobalPrefix('api');
+
+  app.useGlobalFilters(new DatabaseExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({

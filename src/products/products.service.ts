@@ -1,13 +1,11 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
-import { In, QueryFailedError, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -18,24 +16,18 @@ import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
-  private readonly logger = new Logger(ProductsService.name);
-
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
     private readonly categoriesService: CategoriesService,
-  ) {}
+  ) { }
 
   async create(createProductDto: CreateProductDto) {
     await this.categoriesService.validate(createProductDto.categoryId);
 
-    try {
-      const product = this.productRepository.create(createProductDto);
-      return await this.productRepository.save(product);
-    } catch (error) {
-      this.handleExceptions(error);
-    }
+    const product = this.productRepository.create(createProductDto);
+    return await this.productRepository.save(product);
   }
 
   async findAll(query: PaginateQuery) {
@@ -84,13 +76,9 @@ export class ProductsService {
       throw new NotFoundException(`Product with id "${id}" not found`);
     }
 
-    try {
-      return await this.productRepository.save(product);
-    } catch (error: unknown) {
-      this.handleExceptions(error);
-    }
+    return await this.productRepository.save(product);
   }
-  
+
   async validate(productIds: string[]): Promise<Map<string, Product>> {
     const products = await this.productRepository.find({
       where: { id: In(productIds) },
@@ -124,29 +112,4 @@ export class ProductsService {
     return this.productRepository.remove(product);
   }
 
-  private handleExceptions(error: unknown): never {
-    if (error instanceof QueryFailedError) {
-      const driverError = error.driverError as {
-        code?: string;
-        detail?: string;
-      };
-
-      if (driverError.code === '23505') {
-        this.logger.error(`Violation UNIQUE: ${driverError.detail}`);
-        throw new BadRequestException(
-          'A product with this information already exists',
-        );
-      }
-
-      if (driverError.code === '23503') {
-        this.logger.error(`Foreign key violation: ${driverError.detail}`);
-        throw new BadRequestException('Invalid category reference');
-      }
-    }
-
-    this.logger.error(error);
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
-  }
 }

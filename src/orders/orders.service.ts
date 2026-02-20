@@ -1,13 +1,11 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
-import { DatabaseError } from 'pg';
 import { DataSource, Repository } from 'typeorm';
 
 import { OrderProduct } from '../order-products/entities/order-product.entity';
@@ -132,11 +130,7 @@ export class OrdersService {
       throw new NotFoundException(`Order with id "${id}" not found`);
     }
 
-    try {
-      return await this.orderRepository.save(order);
-    } catch (error) {
-      this.handleExceptions(error);
-    }
+    return await this.orderRepository.save(order);
   }
 
   async updateStatus(id: string, updateStatusDto: UpdateOrderStatusDto) {
@@ -156,11 +150,7 @@ export class OrdersService {
       order.closedAt = new Date();
     }
 
-    try {
-      return await this.orderRepository.save(order);
-    } catch (error) {
-      this.handleExceptions(error);
-    }
+    return await this.orderRepository.save(order);
   }
 
   async addItems(id: string, addItemsDto: AddItemsDto) {
@@ -294,24 +284,4 @@ export class OrdersService {
     return `ORD-${dateStr}-${sequence.toString().padStart(3, '0')}`;
   }
 
-  private handleExceptions(error: unknown): never {
-    if (error instanceof DatabaseError) {
-      if (error.code === '23505') {
-        this.logger.error(`Violation UNIQUE: ${error.detail}`);
-        throw new BadRequestException(
-          'An order with this information already exists',
-        );
-      }
-
-      if (error.code === '23503') {
-        this.logger.error(`Foreign key violation: ${error.detail}`);
-        throw new BadRequestException('Invalid reference');
-      }
-    }
-
-    this.logger.error(error);
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
-  }
 }

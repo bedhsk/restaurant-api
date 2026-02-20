@@ -1,13 +1,10 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
-import { DatabaseError } from 'pg';
 import { Repository } from 'typeorm';
 
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -18,28 +15,22 @@ import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoriesService {
-  private readonly logger = new Logger(CategoriesService.name);
-
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
   ) { }
 
   async create(createCategoryDto: CreateCategoryDto) {
-    try {
-      const nextOrder = await this.categoryRepository
-        .createQueryBuilder('category')
-        .select('MAX(category.displayOrder)', 'max')
-        .getRawOne();
+    const nextOrder = await this.categoryRepository
+      .createQueryBuilder('category')
+      .select('MAX(category.displayOrder)', 'max')
+      .getRawOne();
 
-      const category = this.categoryRepository.create({
-        ...createCategoryDto,
-        displayOrder: (nextOrder?.max ?? 0) + 1,
-      });
-      return await this.categoryRepository.save(category);
-    } catch (error: unknown) {
-      this.handleExceptions(error);
-    }
+    const category = this.categoryRepository.create({
+      ...createCategoryDto,
+      displayOrder: (nextOrder?.max ?? 0) + 1,
+    });
+    return await this.categoryRepository.save(category);
   }
 
   async findAll(query: PaginateQuery) {
@@ -90,11 +81,7 @@ export class CategoriesService {
       throw new NotFoundException(`Category with id "${id}" not found`);
     }
 
-    try {
-      return await this.categoryRepository.save(category);
-    } catch (error) {
-      this.handleExceptions(error);
-    }
+    return await this.categoryRepository.save(category);
   }
 
   async remove(id: string) {
@@ -126,24 +113,4 @@ export class CategoriesService {
     }
   }
 
-  private handleExceptions(error: unknown): never {
-    if (error instanceof DatabaseError) {
-      if (error.code === '23505') {
-        this.logger.error(`Violation UNIQUE: ${error.detail}`);
-        throw new BadRequestException(
-          'A category with this information already exists',
-        );
-      }
-
-      if (error.code === '23503') {
-        this.logger.error(`Foreign key violation: ${error.detail}`);
-        throw new BadRequestException('Invalid reference');
-      }
-    }
-
-    this.logger.error(error);
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
-  }
 }
