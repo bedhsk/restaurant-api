@@ -6,11 +6,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Order } from '../../orders/entities/order.entity';
 import { TableStatus } from '../enums/table-status.enum';
 
-@ApiTags('Tables')
 @Entity('tables')
 export class Table {
   @ApiProperty({

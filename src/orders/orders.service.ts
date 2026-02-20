@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { OrderProduct } from '../order-products/entities/order-product.entity';
 import { Product } from '../products/entities/product.entity';
@@ -54,8 +54,8 @@ export class OrdersService {
 
     // Use transaction to ensure atomicity
     return this.dataSource.transaction(async (manager) => {
-      // Generate order number
-      const orderNumber = await this.generateOrderNumber();
+      // Generate order number (inside transaction to prevent race conditions)
+      const orderNumber = await this.generateOrderNumber(manager);
 
       // Calculate order products with prices
       const orderProductsData = this.calculateOrderProducts(items, products);
@@ -265,12 +265,13 @@ export class OrdersService {
     });
   }
 
-  private async generateOrderNumber(): Promise<string> {
+  private async generateOrderNumber(manager: EntityManager): Promise<string> {
     const today = new Date();
     const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
 
-    const lastOrder = await this.orderRepository
-      .createQueryBuilder('order')
+    const lastOrder = await manager
+      .createQueryBuilder(Order, 'order')
+      .setLock('pessimistic_write')
       .where('order.orderNumber LIKE :pattern', { pattern: `ORD-${dateStr}-%` })
       .orderBy('order.orderNumber', 'DESC')
       .getOne();

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -62,6 +63,7 @@ export class CreateProductDto {
     default: true,
   })
   @IsOptional()
+  @IsBoolean()
   isAvailable?: boolean;
 
   @ApiProperty({

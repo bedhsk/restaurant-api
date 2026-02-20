@@ -3,10 +3,12 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -25,6 +27,8 @@ class OrderProductInputDto {
     minimum: 1,
   })
   @IsNotEmpty()
+  @IsInt()
+  @Min(1)
   quantity: number;
 
   @ApiProperty({

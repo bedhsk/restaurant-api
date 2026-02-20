@@ -100,7 +100,7 @@ export class AuthService {
 
   checkAuthStatus(user: User) {
     return {
-      ...user,
+      ...this.sanitizeUser(user),
       token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
     };
   }
