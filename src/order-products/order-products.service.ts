@@ -64,8 +64,11 @@ export class OrderProductsService {
 
     const savedItem = await this.orderProductRepository.save(orderProduct);
 
-    // Recalculate order totals if quantity changed
-    if (updateOrderProductDto.quantity) {
+    // Recalculate order totals if quantity changed or product was cancelled
+    if (
+      updateOrderProductDto.quantity ||
+      updateOrderProductDto.status === OrderProductStatus.CANCELLED
+    ) {
       await this.ordersService.recalculateOrderTotals(orderProduct.orderId);
     }
 

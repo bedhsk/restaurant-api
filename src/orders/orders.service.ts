@@ -9,6 +9,7 @@ import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { OrderProduct } from '../order-products/entities/order-product.entity';
+import { OrderProductStatus } from '../order-products/enum/order-product-status.enum';
 import { Product } from '../products/entities/product.entity';
 import { Order } from './entities/order.entity';
 
@@ -227,7 +228,11 @@ export class OrdersService {
 
     if (!order) return;
 
-    const subtotal = order.orderProducts.reduce(
+    const activeProducts = order.orderProducts.filter(
+      (item) => item.status !== OrderProductStatus.CANCELLED,
+    );
+
+    const subtotal = activeProducts.reduce(
       (sum, item) => sum + Number(item.subtotal),
       0,
     );
