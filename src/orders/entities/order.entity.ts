@@ -41,22 +41,15 @@ export class Order {
   status: OrderStatus;
 
   @ApiProperty({
-    description: 'Sum of all order items before tax',
+    description: 'Sum of all order items',
     example: 45.5,
   })
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   subtotal: number;
 
   @ApiProperty({
-    description: 'Tax amount applied to the order',
-    example: 7.28,
-  })
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
-  tax: number;
-
-  @ApiProperty({
-    description: 'Total amount including tax (subtotal + tax)',
-    example: 52.78,
+    description: 'Total amount of the order',
+    example: 45.5,
   })
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   total: number;

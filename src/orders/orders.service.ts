@@ -24,7 +24,7 @@ import { TableStatus } from 'src/tables/enums/table-status.enum';
 import { TablesService } from 'src/tables/tables.service';
 import { OrderStatus } from './enum/order-status.enum';
 
-const TAX_RATE = 0.12; // 12% IVA
+
 
 @Injectable()
 export class OrdersService {
@@ -63,8 +63,7 @@ export class OrdersService {
         (sum, item) => sum + item.subtotal,
         0,
       );
-      const tax = Number((subtotal * TAX_RATE).toFixed(2));
-      const total = Number((subtotal + tax).toFixed(2));
+      const total = Number(subtotal.toFixed(2));
 
       // Create order
       const order = manager.create(Order, {
@@ -73,7 +72,6 @@ export class OrdersService {
         user,
         notes,
         subtotal,
-        tax,
         total,
         status: OrderStatus.OPEN,
       });
@@ -199,10 +197,9 @@ export class OrdersService {
         (sum, item) => sum + Number(item.subtotal),
         0,
       );
-      const tax = Number((subtotal * TAX_RATE).toFixed(2));
-      const total = Number((subtotal + tax).toFixed(2));
+      const total = Number(subtotal.toFixed(2));
 
-      await manager.update(Order, id, { subtotal, tax, total });
+      await manager.update(Order, id, { subtotal, total });
 
       // Use manager to query within transaction context
       return manager.findOne(Order, {
@@ -234,10 +231,9 @@ export class OrdersService {
       (sum, item) => sum + Number(item.subtotal),
       0,
     );
-    const tax = Number((subtotal * TAX_RATE).toFixed(2));
-    const total = Number((subtotal + tax).toFixed(2));
+    const total = Number(subtotal.toFixed(2));
 
-    await this.orderRepository.update(orderId, { subtotal, tax, total });
+    await this.orderRepository.update(orderId, { subtotal, total });
   }
 
   private calculateOrderProducts(
