@@ -21,7 +21,6 @@ export const ORDER_PAGINATION: PaginateConfig<Order> = {
     'orderNumber',
     'status',
     'subtotal',
-    'tax',
     'total',
     'notes',
     'closedAt',
