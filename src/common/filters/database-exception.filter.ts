@@ -79,6 +79,13 @@ export class DatabaseExceptionFilter implements ExceptionFilter {
           message: 'Invalid input format',
         };
 
+      case '42703': // undefined_column
+        this.logger.error(`Undefined column: ${driverError.detail}`);
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: 'Query references a non-existent column',
+        };
+
       default:
         this.logger.error(
           `Unhandled database error [${driverError.code}]: ${driverError.detail}`,
