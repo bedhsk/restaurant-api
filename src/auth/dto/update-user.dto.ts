@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 import { ValidRoles } from '../interfaces';
 
 export class UpdateUserDto {
@@ -31,4 +31,13 @@ export class UpdateUserDto {
   @IsArray()
   @IsOptional()
   roles?: ValidRoles[];
+
+  @ApiProperty({
+    description: 'Whether the user account is active',
+    example: true,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

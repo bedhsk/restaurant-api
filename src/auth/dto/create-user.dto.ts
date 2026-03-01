@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsOptional,
@@ -52,4 +53,13 @@ export class CreateUserDto {
   @IsEnum(ValidRoles, { each: true })
   @IsOptional()
   roles?: ValidRoles[];
+
+  @ApiPropertyOptional({
+    description: 'Whether the user account is active',
+    example: true,
+    default: true,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

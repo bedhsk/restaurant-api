@@ -53,11 +53,16 @@ export class AuthService {
         password: true,
         roles: true,
         tokenVersion: true,
+        isActive: true,
       },
     });
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('User inactive, talk to an admin');
     }
 
     if (!compareSync(password, user.password)) {
