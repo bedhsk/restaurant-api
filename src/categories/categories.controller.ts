@@ -49,7 +49,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) { }
 
   @Post()
-  @Auth(Role.admin, Role.manager)
+  @Auth()
   @ApiOperation({
     summary: 'Create a new category',
     description: 'Roles: manager',
@@ -124,7 +124,7 @@ export class CategoriesController {
   }
 
   @Get(':id/products')
-  @Auth(Role.admin, Role.manager, Role.waiter, Role.cashier)
+  @Auth()
   @ApiOperation({
     summary: 'Get all products belonging to a category',
     description: 'Roles: admin, manager, waiter, cashier',
@@ -153,7 +153,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  @Auth(Role.admin, Role.manager)
+  @Auth()
   @ApiOperation({
     summary: 'Update a category by its ID',
     description: 'Roles: manager',
