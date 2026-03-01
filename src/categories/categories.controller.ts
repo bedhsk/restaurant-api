@@ -75,7 +75,7 @@ export class CategoriesController {
   }
 
   @Get()
-  @Auth(Role.admin, Role.manager)
+  @Auth()
   @ApiOperation({
     summary: 'List categories with pagination, filtering, and search',
     description: 'Roles: manager',
@@ -95,7 +95,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  @Auth(Role.admin, Role.manager)
+  @Auth()
   @ApiOperation({
     summary: 'Get a category by its ID',
     description: 'Roles: manager',
