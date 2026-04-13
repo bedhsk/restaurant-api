@@ -1,4 +1,4 @@
-import { PaginateConfig } from 'nestjs-paginate';
+import { FilterOperator, FilterSuffix, PaginateConfig } from 'nestjs-paginate';
 import { Product } from 'src/products/entities/product.entity';
 
 export const PRODUCT_PAGINATION: PaginateConfig<Product> = {
@@ -13,6 +13,16 @@ export const PRODUCT_PAGINATION: PaginateConfig<Product> = {
   defaultSortBy: [['createdAt', 'DESC']],
 
   searchableColumns: ['name', 'category.name'],
+
+  filterableColumns: {
+    isAvailable: [FilterOperator.EQ],
+    'category.id': [FilterOperator.EQ, FilterOperator.IN],
+    'category.name': [
+      FilterOperator.EQ,
+      FilterOperator.ILIKE,
+      FilterSuffix.NOT,
+    ],
+  },
 
   relations: ['category'],
 
