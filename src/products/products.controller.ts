@@ -28,7 +28,6 @@ import {
 import { Auth } from 'src/auth/decorators';
 import { Product } from './entities/product.entity';
 import { ProductsService } from './products.service';
-// import { ValidRoles as Role } from 'src/auth/interfaces';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PRODUCT_PAGINATION } from 'src/common/config/pagination';
