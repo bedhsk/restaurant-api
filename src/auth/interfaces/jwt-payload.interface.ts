@@ -1,4 +1,4 @@
 export interface JwtPayload {
-    id: string
-    tokenVersion: number
+  id: string;
+  tokenVersion: number;
 }

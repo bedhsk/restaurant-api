@@ -43,16 +43,25 @@ export class OrdersController {
 
   @Post()
   @Auth()
-  @ApiOperation({ summary: 'Create a new order with products', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'Create a new order with products',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiCreatedResponse({ description: 'Order created.', type: Order })
-  @ApiBadRequestResponse({ description: 'Invalid input data, table/products not found, or products unavailable.' })
+  @ApiBadRequestResponse({
+    description:
+      'Invalid input data, table/products not found, or products unavailable.',
+  })
   create(@Body() createOrderDto: CreateOrderDto, @GetUser() user: User) {
     return this.ordersService.create(createOrderDto, user);
   }
 
   @Get()
   @Auth()
-  @ApiOperation({ summary: 'List orders with pagination, filtering, and search', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'List orders with pagination, filtering, and search',
+    description: 'Roles: Any authenticated user',
+  })
   @PaginatedSwaggerDocs(Order, ORDER_PAGINATION)
   findAll(@Paginate() query: PaginateQuery) {
     return this.ordersService.findAll(query);
@@ -60,7 +69,10 @@ export class OrdersController {
 
   @Get(':id')
   @Auth()
-  @ApiOperation({ summary: 'Get an order by ID with all products', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'Get an order by ID with all products',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({ description: 'Order found.', type: Order })
   @ApiNotFoundResponse({ description: 'Order not found.' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
@@ -69,7 +81,10 @@ export class OrdersController {
 
   @Patch(':id')
   @Auth()
-  @ApiOperation({ summary: 'Update order notes', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'Update order notes',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({ description: 'Order updated.', type: Order })
   @ApiNotFoundResponse({ description: 'Order not found.' })
   update(
@@ -81,7 +96,10 @@ export class OrdersController {
 
   @Patch(':id/status')
   @Auth()
-  @ApiOperation({ summary: 'Update order status', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'Update order status',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({ description: 'Order status updated.', type: Order })
   @ApiBadRequestResponse({ description: 'Invalid status value.' })
   @ApiNotFoundResponse({ description: 'Order not found.' })
@@ -94,9 +112,14 @@ export class OrdersController {
 
   @Post(':id/items')
   @Auth()
-  @ApiOperation({ summary: 'Add products to an existing order', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'Add products to an existing order',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiCreatedResponse({ description: 'Products added to order.', type: Order })
-  @ApiBadRequestResponse({ description: 'Order is closed or products not found/unavailable.' })
+  @ApiBadRequestResponse({
+    description: 'Order is closed or products not found/unavailable.',
+  })
   @ApiNotFoundResponse({ description: 'Order not found.' })
   addItems(
     @Param('id', ParseUUIDPipe) id: string,
@@ -108,7 +131,10 @@ export class OrdersController {
   @Delete(':id')
   @Auth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete an order by ID', description: 'Roles: Any authenticated user' })
+  @ApiOperation({
+    summary: 'Delete an order by ID',
+    description: 'Roles: Any authenticated user',
+  })
   @ApiOkResponse({ description: 'Order deleted.', type: Order })
   @ApiNotFoundResponse({ description: 'Order not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string) {

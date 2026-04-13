@@ -19,7 +19,7 @@ export class TablesService {
   constructor(
     @InjectRepository(Table)
     private readonly tableRepository: Repository<Table>,
-  ) { }
+  ) {}
 
   async create(createTableDto: CreateTableDto) {
     const table = this.tableRepository.create(createTableDto);
@@ -76,5 +76,4 @@ export class TablesService {
 
     return this.tableRepository.remove(table);
   }
-
 }

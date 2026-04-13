@@ -18,7 +18,7 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) { }
+  ) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
     const nextOrder = await this.categoryRepository
@@ -47,7 +47,7 @@ export class CategoriesService {
         'displayOrder',
         'isActive',
         'createdAt',
-        'updatedAt'
+        'updatedAt',
       ],
     });
 
@@ -112,5 +112,4 @@ export class CategoriesService {
       throw new BadRequestException(`Category with id "${id}" not found`);
     }
   }
-
 }

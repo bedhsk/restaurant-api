@@ -1,8 +1,8 @@
 import {
-    Injectable,
-    Logger,
-    NotFoundException,
-    UnauthorizedException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,111 +18,111 @@ import { USER_PAGINATION } from 'src/common/config/pagination';
 
 @Injectable()
 export class AuthService {
-    private readonly logger = new Logger(AuthService.name);
+  private readonly logger = new Logger(AuthService.name);
 
-    constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
 
-        private readonly jwtService: JwtService,
-    ) { }
+    private readonly jwtService: JwtService,
+  ) {}
 
-    async create(createUserDto: CreateUserDto) {
-        const { email, password, ...userData } = createUserDto;
-        const user = this.userRepository.create({
-            ...userData,
-            email: email.toLowerCase().trim(),
-            password: hashSync(password, 10),
-        });
-        await this.userRepository.save(user);
-        return {
-            ...this.sanitizeUser(user),
-            token: this.getJwtToken({
-                id: user.id,
-                tokenVersion: user.tokenVersion,
-            }),
-        };
+  async create(createUserDto: CreateUserDto) {
+    const { email, password, ...userData } = createUserDto;
+    const user = this.userRepository.create({
+      ...userData,
+      email: email.toLowerCase().trim(),
+      password: hashSync(password, 10),
+    });
+    await this.userRepository.save(user);
+    return {
+      ...this.sanitizeUser(user),
+      token: this.getJwtToken({
+        id: user.id,
+        tokenVersion: user.tokenVersion,
+      }),
+    };
+  }
+
+  async login(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        roles: true,
+        tokenVersion: true,
+        isActive: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    async login(loginUserDto: LoginUserDto) {
-        const { email, password } = loginUserDto;
-        const user = await this.userRepository.findOne({
-            where: { email },
-            select: {
-                id: true,
-                email: true,
-                password: true,
-                roles: true,
-                tokenVersion: true,
-                isActive: true,
-            },
-        });
-
-        if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
-
-        if (!user.isActive) {
-            throw new UnauthorizedException('User inactive, talk to an admin');
-        }
-
-        if (!compareSync(password, user.password)) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
-
-        return {
-            ...this.sanitizeUser(user),
-            token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
-        };
+    if (!user.isActive) {
+      throw new UnauthorizedException('User inactive, talk to an admin');
     }
 
-    findAllUsers(query: PaginateQuery) {
-        return paginate(query, this.userRepository, USER_PAGINATION);
+    if (!compareSync(password, user.password)) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    async updateUser(id: string, updateUserDto: UpdateUserDto) {
-        const user = await this.userRepository.preload({
-            id,
-            ...updateUserDto,
-        });
+    return {
+      ...this.sanitizeUser(user),
+      token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
+    };
+  }
 
-        if (!user) {
-            throw new NotFoundException(`User with id ${id} not found`);
-        }
+  findAllUsers(query: PaginateQuery) {
+    return paginate(query, this.userRepository, USER_PAGINATION);
+  }
 
-        return await this.userRepository.save(user);
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.preload({
+      id,
+      ...updateUserDto,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    async softDeleteUser(id: string) {
-        const user = await this.userRepository.findOneBy({ id });
+    return await this.userRepository.save(user);
+  }
 
-        if (!user) {
-            throw new NotFoundException(`User with id ${id} not found`);
-        }
+  async softDeleteUser(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
 
-        user.isActive = false;
-        await this.userRepository.save(user);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    checkAuthStatus(user: User) {
-        return {
-            ...this.sanitizeUser(user),
-            token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
-        };
-    }
+    user.isActive = false;
+    await this.userRepository.save(user);
+  }
 
-    async revokeTokens(user: User) {
-        user.tokenVersion += 1;
-        await this.userRepository.save(user);
-        return `User ${user.name} session closed`;
-    }
+  checkAuthStatus(user: User) {
+    return {
+      ...this.sanitizeUser(user),
+      token: this.getJwtToken({ id: user.id, tokenVersion: user.tokenVersion }),
+    };
+  }
 
-    private sanitizeUser(user: User): Omit<User, 'password'> {
-        const { password: _, ...userWithoutPassword } = user;
-        return userWithoutPassword;
-    }
+  async revokeTokens(user: User) {
+    user.tokenVersion += 1;
+    await this.userRepository.save(user);
+    return `User ${user.name} session closed`;
+  }
 
-    private getJwtToken(payload: JwtPayload): string {
-        return this.jwtService.sign(payload);
-    }
+  private sanitizeUser(user: User): Omit<User, 'password'> {
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  private getJwtToken(payload: JwtPayload): string {
+    return this.jwtService.sign(payload);
+  }
 }

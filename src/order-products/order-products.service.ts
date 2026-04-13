@@ -17,7 +17,7 @@ export class OrderProductsService {
     @InjectRepository(OrderProduct)
     private readonly orderProductRepository: Repository<OrderProduct>,
     private readonly ordersService: OrdersService,
-  ) { }
+  ) {}
 
   async findOne(id: string) {
     const orderProduct = await this.orderProductRepository.findOne({
@@ -109,5 +109,4 @@ export class OrderProductsService {
 
     return { message: 'Order product removed successfully' };
   }
-
 }

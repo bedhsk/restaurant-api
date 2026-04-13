@@ -25,8 +25,6 @@ import { TableStatus } from 'src/tables/enums/table-status.enum';
 import { TablesService } from 'src/tables/tables.service';
 import { OrderStatus } from './enum/order-status.enum';
 
-
-
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
@@ -39,7 +37,7 @@ export class OrdersService {
     private readonly tablesService: TablesService,
 
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async create(createOrderDto: CreateOrderDto, user: User) {
     const { tableId, notes, items } = createOrderDto;
@@ -90,7 +88,9 @@ export class OrdersService {
       await manager.save(OrderProduct, orderProducts);
 
       if (tableId) {
-        await this.tablesService.update(tableId, { status: TableStatus.OCCUPIED });
+        await this.tablesService.update(tableId, {
+          status: TableStatus.OCCUPIED,
+        });
       }
 
       // Use manager to query within transaction context
@@ -285,5 +285,4 @@ export class OrdersService {
 
     return `ORD-${dateStr}-${sequence.toString().padStart(3, '0')}`;
   }
-
 }

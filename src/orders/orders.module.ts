@@ -10,11 +10,7 @@ import { ProductsModule } from 'src/products/products.module';
 import { TablesModule } from 'src/tables/tables.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order]),
-    ProductsModule,
-    TablesModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Order]), ProductsModule, TablesModule],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

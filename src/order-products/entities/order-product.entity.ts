@@ -67,7 +67,9 @@ export class OrderProduct {
     description: 'Order to which this product belongs',
     type: () => Order,
   })
-  @ManyToOne(() => Order, (order) => order.orderProducts, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (order) => order.orderProducts, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 

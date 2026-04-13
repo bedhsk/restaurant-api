@@ -21,7 +21,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
 
     private readonly categoriesService: CategoriesService,
-  ) { }
+  ) {}
 
   async create(createProductDto: CreateProductDto) {
     await this.categoriesService.validate(createProductDto.categoryId);
@@ -111,5 +111,4 @@ export class ProductsService {
 
     return this.productRepository.remove(product);
   }
-
 }

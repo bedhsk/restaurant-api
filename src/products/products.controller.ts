@@ -37,20 +37,28 @@ import { PRODUCT_PAGINATION } from 'src/common/config/pagination';
 @ApiBearerAuth()
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Post()
   @Auth()
-  @ApiOperation({ summary: 'Create a new product', description: 'Roles: manager' })
+  @ApiOperation({
+    summary: 'Create a new product',
+    description: 'Roles: manager',
+  })
   @ApiCreatedResponse({ description: 'Product created.', type: Product })
-  @ApiBadRequestResponse({ description: 'Invalid input data or category does not exist.' })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data or category does not exist.',
+  })
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
   @Get()
   @Auth()
-  @ApiOperation({ summary: 'List products with pagination, filtering, and search', description: 'Roles: manager, cashier' })
+  @ApiOperation({
+    summary: 'List products with pagination, filtering, and search',
+    description: 'Roles: manager, cashier',
+  })
   @PaginatedSwaggerDocs(Product, PRODUCT_PAGINATION)
   findAll(@Paginate() query: PaginateQuery) {
     return this.productsService.findAll(query);
@@ -58,7 +66,10 @@ export class ProductsController {
 
   @Get(':id')
   @Auth()
-  @ApiOperation({ summary: 'Get a product by ID', description: 'Roles: manager, cashier' })
+  @ApiOperation({
+    summary: 'Get a product by ID',
+    description: 'Roles: manager, cashier',
+  })
   @ApiOkResponse({ description: 'Product found.', type: Product })
   @ApiNotFoundResponse({ description: 'Product not found.' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
@@ -67,9 +78,14 @@ export class ProductsController {
 
   @Patch(':id')
   @Auth()
-  @ApiOperation({ summary: 'Update a product by ID', description: 'Roles: manager' })
+  @ApiOperation({
+    summary: 'Update a product by ID',
+    description: 'Roles: manager',
+  })
   @ApiOkResponse({ description: 'Product updated.', type: Product })
-  @ApiBadRequestResponse({ description: 'Invalid input data or category does not exist.' })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data or category does not exist.',
+  })
   @ApiNotFoundResponse({ description: 'Product not found.' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -81,7 +97,10 @@ export class ProductsController {
   @Delete(':id')
   @Auth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a product by ID', description: 'Roles: manager, waiter' })
+  @ApiOperation({
+    summary: 'Delete a product by ID',
+    description: 'Roles: manager, waiter',
+  })
   @ApiOkResponse({ description: 'Product deleted.', type: Product })
   @ApiNotFoundResponse({ description: 'Product not found.' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
