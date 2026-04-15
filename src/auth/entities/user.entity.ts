@@ -13,7 +13,7 @@ import { ValidRoles as Role } from '../interfaces';
 /**
  * User Entity
  * Represents a system user (staff member) who can authenticate and perform actions.
- * Users can have different roles: admin, manager, waiter, cashier.
+ * Users can have different roles: admin, manager, waiter, cashier, cook.
  */
 @Entity('users')
 export class User {

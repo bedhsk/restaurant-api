@@ -3,4 +3,5 @@ export enum ValidRoles {
   manager = 'manager',
   waiter = 'waiter',
   cashier = 'cashier',
+  cook = 'cook',
 }
